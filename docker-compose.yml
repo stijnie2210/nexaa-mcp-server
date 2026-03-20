@@ -1,0 +1,9 @@
+services:
+  nexaa-mcp:
+    build: .
+    stdin_open: true
+    environment:
+      NEXAA_USERNAME: ${NEXAA_USERNAME}
+      NEXAA_PASSWORD: ${NEXAA_PASSWORD}
+      NEXAA_GRAPHQL_URL: ${NEXAA_GRAPHQL_URL:-https://graphql.tilaa.com/graphql/platform}
+      NEXAA_KEYCLOAK_URL: ${NEXAA_KEYCLOAK_URL:-https://auth.tilaa.com}
