@@ -18,7 +18,12 @@ const AllowListEntry = z.object({
 });
 
 const ExternalConnectionPort = z.object({
-  externalPort: z.number().optional(),
+  externalPort: z
+    .number()
+    .optional()
+    .describe(
+      "Omit when creating a new port — the platform assigns the external port automatically. Required when modifying or removing an existing port so the backend knows which port to target."
+    ),
   internalPort: z.number().optional(),
   protocol: z.enum(["TCP", "UDP"]),
   state: z.enum(["PRESENT", "ABSENT"]),
