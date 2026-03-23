@@ -26,7 +26,7 @@ const Ingress = z.object({
   port: z.number(),
   enableTLS: z.boolean(),
   whitelist: z.array(z.string()).describe("CIDR blocks"),
-  domainName: z.string().optional(),
+  domainName: z.string().optional().describe("Omit to have a default domain assigned automatically by the platform"),
   state: z.enum(["PRESENT", "ABSENT"]),
 });
 
