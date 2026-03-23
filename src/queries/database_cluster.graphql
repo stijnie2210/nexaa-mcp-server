@@ -78,9 +78,7 @@ query getCloudDatabaseCluster($cloudDatabaseClusterInput: CloudDatabaseClusterRe
   }
 }
 
-mutation cloudDatabaseClusterCreate(
-  $cloudDatabaseClusterInput: CloudDatabaseClusterCreateInput!
-) {
+mutation cloudDatabaseClusterCreate($cloudDatabaseClusterInput: CloudDatabaseClusterCreateInput!) {
   cloudDatabaseClusterCreate(cloudDatabaseClusterInput: $cloudDatabaseClusterInput) {
     ...CloudDatabaseClusterResult
   }

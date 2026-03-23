@@ -21,7 +21,5 @@ mutation registryCreate($input: RegistryCreateInput!) {
 }
 
 mutation registryDelete($namespaceName: String!, $registryName: String!) {
-  registryConnectionDelete(
-    registryConnection: { name: $registryName, namespace: $namespaceName }
-  )
+  registryConnectionDelete(registryConnection: { name: $registryName, namespace: $namespaceName })
 }

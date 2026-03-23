@@ -45,9 +45,7 @@ export function registerContainerJobTools(server: McpServer, client: GraphQLClie
         namespaceName: namespace,
       });
       return {
-        content: [
-          { type: 'text', text: JSON.stringify(data.namespace?.containerJobs, null, 2) },
-        ],
+        content: [{ type: 'text', text: JSON.stringify(data.namespace?.containerJobs, null, 2) }],
       };
     },
   );
