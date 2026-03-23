@@ -2,12 +2,16 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { GraphQLClient } from 'graphql-request';
 import { z } from 'zod';
 import {
-  CONTAINER_JOB_LIST,
-  CONTAINER_JOB_GET,
-  CONTAINER_JOB_CREATE,
-  CONTAINER_JOB_MODIFY,
-  CONTAINER_JOB_DELETE,
-} from '../queries/container_job.js';
+  ContainerJobListDocument,
+  ContainerJobByNameDocument,
+  ContainerJobCreateDocument,
+  ContainerJobModifyDocument,
+  ContainerJobDeleteDocument,
+  type ContainerJobListQuery,
+  type ContainerJobByNameQuery,
+  type ContainerJobCreateMutation,
+  type ContainerJobModifyMutation,
+} from '../generated/graphql.js';
 
 const EnvironmentVariable = z.object({
   name: z.string(),
@@ -37,11 +41,13 @@ export function registerContainerJobTools(server: McpServer, client: GraphQLClie
       inputSchema: { namespace: z.string() },
     },
     async ({ namespace }) => {
-      const data = await client.request<{
-        namespace: { containerJobs: unknown[] };
-      }>(CONTAINER_JOB_LIST, { namespaceName: namespace });
+      const data = await client.request<ContainerJobListQuery>(ContainerJobListDocument, {
+        namespaceName: namespace,
+      });
       return {
-        content: [{ type: 'text', text: JSON.stringify(data.namespace.containerJobs, null, 2) }],
+        content: [
+          { type: 'text', text: JSON.stringify(data.namespace?.containerJobs, null, 2) },
+        ],
       };
     },
   );
@@ -56,7 +62,7 @@ export function registerContainerJobTools(server: McpServer, client: GraphQLClie
       },
     },
     async ({ namespace, name }) => {
-      const data = await client.request<{ containerJob: unknown }>(CONTAINER_JOB_GET, {
+      const data = await client.request<ContainerJobByNameQuery>(ContainerJobByNameDocument, {
         namespaceName: namespace,
         containerName: name,
       });
@@ -86,7 +92,7 @@ export function registerContainerJobTools(server: McpServer, client: GraphQLClie
       },
     },
     async (input) => {
-      const data = await client.request<{ containerJobCreate: unknown }>(CONTAINER_JOB_CREATE, {
+      const data = await client.request<ContainerJobCreateMutation>(ContainerJobCreateDocument, {
         scheduledJob: input,
       });
       return {
@@ -115,7 +121,7 @@ export function registerContainerJobTools(server: McpServer, client: GraphQLClie
       },
     },
     async (input) => {
-      const data = await client.request<{ containerJobModify: unknown }>(CONTAINER_JOB_MODIFY, {
+      const data = await client.request<ContainerJobModifyMutation>(ContainerJobModifyDocument, {
         scheduledJob: input,
       });
       return {
@@ -134,7 +140,7 @@ export function registerContainerJobTools(server: McpServer, client: GraphQLClie
       },
     },
     async ({ namespace, name }) => {
-      await client.request(CONTAINER_JOB_DELETE, {
+      await client.request(ContainerJobDeleteDocument, {
         namespaceName: namespace,
         containerJobName: name,
       });

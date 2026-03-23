@@ -1,7 +1,15 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { GraphQLClient } from 'graphql-request';
 import { z } from 'zod';
-import { VOLUME_LIST, VOLUME_CREATE, VOLUME_INCREASE, VOLUME_DELETE } from '../queries/volume.js';
+import {
+  VolumeListDocument,
+  VolumeCreateDocument,
+  VolumeIncreaseDocument,
+  VolumeDeleteDocument,
+  type VolumeListQuery,
+  type VolumeCreateMutation,
+  type VolumeIncreaseMutation,
+} from '../generated/graphql.js';
 
 export function registerVolumeTools(server: McpServer, client: GraphQLClient): void {
   server.registerTool(
@@ -11,11 +19,11 @@ export function registerVolumeTools(server: McpServer, client: GraphQLClient): v
       inputSchema: { namespace: z.string() },
     },
     async ({ namespace }) => {
-      const data = await client.request<{
-        namespace: { volumes: unknown[] };
-      }>(VOLUME_LIST, { namespaceName: namespace });
+      const data = await client.request<VolumeListQuery>(VolumeListDocument, {
+        namespaceName: namespace,
+      });
       return {
-        content: [{ type: 'text', text: JSON.stringify(data.namespace.volumes, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(data.namespace?.volumes, null, 2) }],
       };
     },
   );
@@ -31,7 +39,7 @@ export function registerVolumeTools(server: McpServer, client: GraphQLClient): v
       },
     },
     async ({ namespace, name, size }) => {
-      const data = await client.request<{ volumeCreate: unknown }>(VOLUME_CREATE, {
+      const data = await client.request<VolumeCreateMutation>(VolumeCreateDocument, {
         input: { namespace, name, size },
       });
       return {
@@ -52,7 +60,7 @@ export function registerVolumeTools(server: McpServer, client: GraphQLClient): v
       },
     },
     async ({ namespace, name, size }) => {
-      const data = await client.request<{ volumeIncrease: unknown }>(VOLUME_INCREASE, {
+      const data = await client.request<VolumeIncreaseMutation>(VolumeIncreaseDocument, {
         input: { namespace, name, size },
       });
       return {
@@ -71,7 +79,7 @@ export function registerVolumeTools(server: McpServer, client: GraphQLClient): v
       },
     },
     async ({ namespace, name }) => {
-      await client.request(VOLUME_DELETE, {
+      await client.request(VolumeDeleteDocument, {
         namespaceName: namespace,
         volumeName: name,
       });

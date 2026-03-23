@@ -1,0 +1,19 @@
+fragment DatabaseResult on Database {
+  name
+  description
+  status
+}
+
+mutation createCloudDatabaseClusterDatabase(
+  $cloudDatabaseClusterDatabaseInput: CloudDatabaseClusterDatabaseCreateInput!
+) {
+  cloudDatabaseClusterDatabaseCreate(databaseInput: $cloudDatabaseClusterDatabaseInput) {
+    ...DatabaseResult
+  }
+}
+
+mutation deleteCloudDatabaseClusterDatabase(
+  $cloudDatabaseClusterDatabaseInput: CloudDatabaseClusterDatabaseResourceInput!
+) {
+  cloudDatabaseClusterDatabaseDelete(databaseInput: $cloudDatabaseClusterDatabaseInput)
+}

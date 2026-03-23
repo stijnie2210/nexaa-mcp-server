@@ -1,0 +1,132 @@
+fragment DbExternalConnectionResult on ExternalConnection {
+  ipv4
+  ipv6
+  ports {
+    allowList
+    externalPort
+    internalPort
+    protocol
+  }
+}
+
+fragment CloudDatabaseClusterDatabaseResult on Database {
+  name
+  description
+  status
+}
+
+fragment CloudDatabaseClusterUserResult on DatabaseUser {
+  name
+  status
+  permissions {
+    databaseName
+    permission
+  }
+  dsn
+  password
+  role
+}
+
+fragment CloudDatabaseClusterResult on CloudDatabaseCluster {
+  id
+  databases {
+    ...CloudDatabaseClusterDatabaseResult
+  }
+  name
+  hostname
+  namespace {
+    name
+  }
+  plan {
+    cpu
+    group
+    id
+    memory(unit: GB)
+    name
+    price {
+      amount
+      currency
+    }
+    storage
+  }
+  spec {
+    type
+    version
+  }
+  users {
+    ...CloudDatabaseClusterUserResult
+  }
+  adminUser {
+    ...CloudDatabaseClusterUserResult
+  }
+  externalConnection {
+    ...DbExternalConnectionResult
+  }
+  state
+  locked
+}
+
+query getCloudDatabaseClusters {
+  cloudDatabaseClusters {
+    ...CloudDatabaseClusterResult
+  }
+}
+
+query getCloudDatabaseCluster($cloudDatabaseClusterInput: CloudDatabaseClusterResourceInput!) {
+  cloudDatabaseCluster(cloudDatabase: $cloudDatabaseClusterInput) {
+    ...CloudDatabaseClusterResult
+  }
+}
+
+mutation cloudDatabaseClusterCreate(
+  $cloudDatabaseClusterInput: CloudDatabaseClusterCreateInput!
+) {
+  cloudDatabaseClusterCreate(cloudDatabaseClusterInput: $cloudDatabaseClusterInput) {
+    ...CloudDatabaseClusterResult
+  }
+}
+
+mutation cloudDatabaseClusterModify(
+  $cloudDatabaseClusterModifyInput: CloudDatabaseClusterModifyInput!
+) {
+  cloudDatabaseClusterModify(cloudDatabaseClusterInput: $cloudDatabaseClusterModifyInput) {
+    ...CloudDatabaseClusterResult
+  }
+}
+
+mutation cloudDatabaseClusterDelete(
+  $cloudDatabaseClusterResourceInput: CloudDatabaseClusterResourceInput!
+) {
+  cloudDatabaseClusterDelete(cloudDatabase: $cloudDatabaseClusterResourceInput)
+}
+
+query clusterPlans {
+  cloudDatabaseClusterPlans {
+    cpu
+    group
+    id
+    memory(unit: GB)
+    name
+    price {
+      amount
+      currency
+    }
+    storage
+  }
+}
+
+query clusterVersions {
+  cloudDatabaseClusterVersions {
+    type
+    version
+  }
+}
+
+query getCloudDatabaseClusterUserCredentials(
+  $cloudDatabase: CloudDatabaseClusterResourceInput!
+  $userName: String!
+) {
+  cloudDatabaseClusterUserCredentials(cloudDatabase: $cloudDatabase, username: $userName) {
+    dsn
+  }
+}

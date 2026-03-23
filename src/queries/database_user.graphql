@@ -1,0 +1,35 @@
+fragment DatabaseUserResult on DatabaseUser {
+  name
+  status
+  permissions {
+    databaseName
+    permission
+  }
+  dsn
+  password
+  role
+}
+
+query getCloudDatabaseClusterUsers($cloudDatabaseCluster: CloudDatabaseClusterResourceInput!) {
+  cloudDatabaseCluster(cloudDatabase: $cloudDatabaseCluster) {
+    users {
+      ...DatabaseUserResult
+    }
+  }
+}
+
+mutation createCloudDatabaseClusterUser($userInput: CloudDatabaseClusterUserCreateInput!) {
+  cloudDatabaseClusterUserCreate(userInput: $userInput) {
+    ...DatabaseUserResult
+  }
+}
+
+mutation modifyCloudDatabaseClusterUser($userInput: CloudDatabaseClusterUserModifyInput!) {
+  cloudDatabaseClusterUserModify(userInput: $userInput) {
+    ...DatabaseUserResult
+  }
+}
+
+mutation deleteCloudDatabaseClusterUser($userInput: CloudDatabaseClusterUserResourceInput!) {
+  cloudDatabaseClusterUserDelete(userInput: $userInput)
+}

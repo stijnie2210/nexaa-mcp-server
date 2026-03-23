@@ -1,0 +1,42 @@
+fragment NamespaceResult on Namespace {
+  name
+  description
+  state
+  containerJobs {
+    name
+  }
+  containers {
+    name
+  }
+  volumes {
+    name
+  }
+  cloudDatabaseClusters {
+    name
+  }
+  messageQueues {
+    name
+  }
+}
+
+query namespaceList {
+  namespaces {
+    ...NamespaceResult
+  }
+}
+
+query namespaceGet($name: String!) {
+  namespace(name: $name) {
+    ...NamespaceResult
+  }
+}
+
+mutation namespaceCreate($input: NamespaceCreateInput!) {
+  namespaceCreate(namespaceInput: $input) {
+    ...NamespaceResult
+  }
+}
+
+mutation namespaceDelete($name: String!) {
+  namespaceDelete(namespace: { name: $name })
+}

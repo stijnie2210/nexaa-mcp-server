@@ -2,11 +2,14 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { GraphQLClient } from 'graphql-request';
 import { z } from 'zod';
 import {
-  DB_USER_LIST,
-  DB_USER_CREATE,
-  DB_USER_MODIFY,
-  DB_USER_DELETE,
-} from '../queries/database_user.js';
+  GetCloudDatabaseClusterUsersDocument,
+  CreateCloudDatabaseClusterUserDocument,
+  ModifyCloudDatabaseClusterUserDocument,
+  DeleteCloudDatabaseClusterUserDocument,
+  type GetCloudDatabaseClusterUsersQuery,
+  type CreateCloudDatabaseClusterUserMutation,
+  type ModifyCloudDatabaseClusterUserMutation,
+} from '../generated/graphql.js';
 
 const DatabaseUserPermission = z.object({
   databaseName: z.string(),
@@ -25,19 +28,20 @@ export function registerDatabaseUserTools(server: McpServer, client: GraphQLClie
       },
     },
     async ({ clusterName, clusterNamespace }) => {
-      const data = await client.request<{
-        cloudDatabaseCluster: { users: unknown[] };
-      }>(DB_USER_LIST, {
-        cloudDatabaseCluster: {
-          name: clusterName,
-          namespace: clusterNamespace,
+      const data = await client.request<GetCloudDatabaseClusterUsersQuery>(
+        GetCloudDatabaseClusterUsersDocument,
+        {
+          cloudDatabaseCluster: {
+            name: clusterName,
+            namespace: clusterNamespace,
+          },
         },
-      });
+      );
       return {
         content: [
           {
             type: 'text',
-            text: JSON.stringify(data.cloudDatabaseCluster.users, null, 2),
+            text: JSON.stringify(data.cloudDatabaseCluster?.users, null, 2),
           },
         ],
       };
@@ -57,19 +61,20 @@ export function registerDatabaseUserTools(server: McpServer, client: GraphQLClie
       },
     },
     async ({ clusterName, clusterNamespace, username, password, permissions }) => {
-      const data = await client.request<{
-        cloudDatabaseClusterUserCreate: unknown;
-      }>(DB_USER_CREATE, {
-        userInput: {
-          cluster: { name: clusterName, namespace: clusterNamespace },
-          user: {
-            name: username,
-            password,
-            state: 'PRESENT',
-            permissions,
+      const data = await client.request<CreateCloudDatabaseClusterUserMutation>(
+        CreateCloudDatabaseClusterUserDocument,
+        {
+          userInput: {
+            cluster: { name: clusterName, namespace: clusterNamespace },
+            user: {
+              name: username,
+              password,
+              state: 'PRESENT',
+              permissions,
+            },
           },
         },
-      });
+      );
       return {
         content: [
           {
@@ -93,18 +98,19 @@ export function registerDatabaseUserTools(server: McpServer, client: GraphQLClie
       },
     },
     async ({ clusterName, clusterNamespace, username, permissions }) => {
-      const data = await client.request<{
-        cloudDatabaseClusterUserModify: unknown;
-      }>(DB_USER_MODIFY, {
-        userInput: {
-          cluster: { name: clusterName, namespace: clusterNamespace },
-          user: {
-            name: username,
-            state: 'PRESENT',
-            permissions,
+      const data = await client.request<ModifyCloudDatabaseClusterUserMutation>(
+        ModifyCloudDatabaseClusterUserDocument,
+        {
+          userInput: {
+            cluster: { name: clusterName, namespace: clusterNamespace },
+            user: {
+              name: username,
+              state: 'PRESENT',
+              permissions,
+            },
           },
         },
-      });
+      );
       return {
         content: [
           {
@@ -127,7 +133,7 @@ export function registerDatabaseUserTools(server: McpServer, client: GraphQLClie
       },
     },
     async ({ clusterName, clusterNamespace, username }) => {
-      await client.request(DB_USER_DELETE, {
+      await client.request(DeleteCloudDatabaseClusterUserDocument, {
         userInput: {
           cluster: { name: clusterName, namespace: clusterNamespace },
           name: username,

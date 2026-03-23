@@ -1,7 +1,13 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { GraphQLClient } from 'graphql-request';
 import { z } from 'zod';
-import { REGISTRY_LIST, REGISTRY_CREATE, REGISTRY_DELETE } from '../queries/registry.js';
+import {
+  RegistryListDocument,
+  RegistryCreateDocument,
+  RegistryDeleteDocument,
+  type RegistryListQuery,
+  type RegistryCreateMutation,
+} from '../generated/graphql.js';
 
 export function registerRegistryTools(server: McpServer, client: GraphQLClient): void {
   server.registerTool(
@@ -11,14 +17,14 @@ export function registerRegistryTools(server: McpServer, client: GraphQLClient):
       inputSchema: { namespace: z.string() },
     },
     async ({ namespace }) => {
-      const data = await client.request<{
-        namespace: { privateRegistries: unknown[] };
-      }>(REGISTRY_LIST, { namespaceName: namespace });
+      const data = await client.request<RegistryListQuery>(RegistryListDocument, {
+        namespaceName: namespace,
+      });
       return {
         content: [
           {
             type: 'text',
-            text: JSON.stringify(data.namespace.privateRegistries, null, 2),
+            text: JSON.stringify(data.namespace?.privateRegistries, null, 2),
           },
         ],
       };
@@ -40,7 +46,7 @@ export function registerRegistryTools(server: McpServer, client: GraphQLClient):
       },
     },
     async (input) => {
-      const data = await client.request<{ registryConnectionCreate: unknown }>(REGISTRY_CREATE, {
+      const data = await client.request<RegistryCreateMutation>(RegistryCreateDocument, {
         input,
       });
       return {
@@ -64,7 +70,7 @@ export function registerRegistryTools(server: McpServer, client: GraphQLClient):
       },
     },
     async ({ namespace, name }) => {
-      await client.request(REGISTRY_DELETE, {
+      await client.request(RegistryDeleteDocument, {
         namespaceName: namespace,
         registryName: name,
       });

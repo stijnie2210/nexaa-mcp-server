@@ -1,0 +1,37 @@
+fragment VolumeResult on Volume {
+  name
+  size
+  usage
+  state
+  containers {
+    name
+  }
+  containerJobs {
+    name
+  }
+  locked
+}
+
+query volumeList($namespaceName: String!) {
+  namespace(name: $namespaceName) {
+    volumes {
+      ...VolumeResult
+    }
+  }
+}
+
+mutation volumeCreate($input: VolumeCreateInput!) {
+  volumeCreate(volumeInput: $input) {
+    ...VolumeResult
+  }
+}
+
+mutation volumeIncrease($input: VolumeModifyInput!) {
+  volumeIncrease(volumeInput: $input) {
+    ...VolumeResult
+  }
+}
+
+mutation volumeDelete($namespaceName: String!, $volumeName: String!) {
+  volumeDelete(volume: { name: $volumeName, namespace: $namespaceName })
+}

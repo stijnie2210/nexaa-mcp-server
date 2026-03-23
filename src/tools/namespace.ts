@@ -2,20 +2,21 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { GraphQLClient } from 'graphql-request';
 import { z } from 'zod';
 import {
-  NAMESPACE_LIST,
-  NAMESPACE_GET,
-  NAMESPACE_CREATE,
-  NAMESPACE_DELETE,
-} from '../queries/namespace.js';
+  NamespaceListDocument,
+  NamespaceGetDocument,
+  NamespaceCreateDocument,
+  NamespaceDeleteDocument,
+  type NamespaceListQuery,
+  type NamespaceGetQuery,
+  type NamespaceCreateMutation,
+} from '../generated/graphql.js';
 
 export function registerNamespaceTools(server: McpServer, client: GraphQLClient): void {
   server.registerTool(
     'nexaa_namespace_list',
     { description: 'List all namespaces in your Nexaa account' },
     async () => {
-      const data = await client.request<{
-        namespaces: unknown[];
-      }>(NAMESPACE_LIST);
+      const data = await client.request<NamespaceListQuery>(NamespaceListDocument);
       return { content: [{ type: 'text', text: JSON.stringify(data.namespaces, null, 2) }] };
     },
   );
@@ -27,7 +28,7 @@ export function registerNamespaceTools(server: McpServer, client: GraphQLClient)
       inputSchema: { name: z.string().describe('Namespace name') },
     },
     async ({ name }) => {
-      const data = await client.request<{ namespace: unknown }>(NAMESPACE_GET, { name });
+      const data = await client.request<NamespaceGetQuery>(NamespaceGetDocument, { name });
       return { content: [{ type: 'text', text: JSON.stringify(data.namespace, null, 2) }] };
     },
   );
@@ -42,7 +43,7 @@ export function registerNamespaceTools(server: McpServer, client: GraphQLClient)
       },
     },
     async ({ name, description }) => {
-      const data = await client.request<{ namespaceCreate: unknown }>(NAMESPACE_CREATE, {
+      const data = await client.request<NamespaceCreateMutation>(NamespaceCreateDocument, {
         input: { name, description },
       });
       return { content: [{ type: 'text', text: JSON.stringify(data.namespaceCreate, null, 2) }] };
@@ -70,7 +71,7 @@ export function registerNamespaceTools(server: McpServer, client: GraphQLClient)
           ],
         };
       }
-      await client.request(NAMESPACE_DELETE, { name });
+      await client.request(NamespaceDeleteDocument, { name });
       return { content: [{ type: 'text', text: `Namespace "${name}" deleted.` }] };
     },
   );

@@ -2,13 +2,18 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { GraphQLClient } from 'graphql-request';
 import { z } from 'zod';
 import {
-  CONTAINER_LIST,
-  CONTAINER_GET,
-  CONTAINER_CREATE,
-  CONTAINER_MODIFY,
-  CONTAINER_DELETE,
-  CONTAINER_LIST_PLANS,
-} from '../queries/container.js';
+  ContainerListDocument,
+  ContainerByNameDocument,
+  ContainerCreateDocument,
+  ContainerModifyDocument,
+  ContainerDeleteDocument,
+  ContainerListPlansDocument,
+  type ContainerListQuery,
+  type ContainerByNameQuery,
+  type ContainerCreateMutation,
+  type ContainerModifyMutation,
+  type ContainerListPlansQuery,
+} from '../generated/graphql.js';
 
 const EnvironmentVariable = z.object({
   name: z.string(),
@@ -90,14 +95,7 @@ export function registerContainerTools(server: McpServer, client: GraphQLClient)
       description: 'List all available container resource plans (CPU/RAM combinations)',
     },
     async () => {
-      const data = await client.request<{
-        resourceSpecifications: {
-          id: string;
-          cpu: number;
-          ram: number;
-          price: { amount: number; currency: string };
-        }[];
-      }>(CONTAINER_LIST_PLANS);
+      const data = await client.request<ContainerListPlansQuery>(ContainerListPlansDocument);
       return {
         content: [{ type: 'text', text: JSON.stringify(data.resourceSpecifications, null, 2) }],
       };
@@ -111,11 +109,11 @@ export function registerContainerTools(server: McpServer, client: GraphQLClient)
       inputSchema: { namespace: z.string().describe('Namespace name') },
     },
     async ({ namespace }) => {
-      const data = await client.request<{
-        namespace: { containers: unknown[] };
-      }>(CONTAINER_LIST, { namespaceName: namespace });
+      const data = await client.request<ContainerListQuery>(ContainerListDocument, {
+        namespaceName: namespace,
+      });
       return {
-        content: [{ type: 'text', text: JSON.stringify(data.namespace.containers, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(data.namespace?.containers, null, 2) }],
       };
     },
   );
@@ -130,7 +128,7 @@ export function registerContainerTools(server: McpServer, client: GraphQLClient)
       },
     },
     async ({ namespace, name }) => {
-      const data = await client.request<{ container: unknown }>(CONTAINER_GET, {
+      const data = await client.request<ContainerByNameQuery>(ContainerByNameDocument, {
         namespaceName: namespace,
         containerName: name,
       });
@@ -168,7 +166,7 @@ export function registerContainerTools(server: McpServer, client: GraphQLClient)
     },
     async (input) => {
       const { namespace, ...rest } = input;
-      const data = await client.request<{ containerCreate: unknown }>(CONTAINER_CREATE, {
+      const data = await client.request<ContainerCreateMutation>(ContainerCreateDocument, {
         input: { namespace, ...rest },
       });
       return {
@@ -200,7 +198,9 @@ export function registerContainerTools(server: McpServer, client: GraphQLClient)
       },
     },
     async (input) => {
-      const data = await client.request<{ containerModify: unknown }>(CONTAINER_MODIFY, { input });
+      const data = await client.request<ContainerModifyMutation>(ContainerModifyDocument, {
+        input,
+      });
       return {
         content: [{ type: 'text', text: JSON.stringify(data.containerModify, null, 2) }],
       };
@@ -217,7 +217,7 @@ export function registerContainerTools(server: McpServer, client: GraphQLClient)
       },
     },
     async ({ namespace, name }) => {
-      await client.request(CONTAINER_DELETE, {
+      await client.request(ContainerDeleteDocument, {
         namespace,
         container: name,
       });

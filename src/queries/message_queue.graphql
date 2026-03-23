@@ -1,0 +1,126 @@
+fragment MqExternalConnectionResult on ExternalConnection {
+  ipv4
+  ipv6
+  ports {
+    allowList
+    externalPort
+    internalPort
+    protocol
+  }
+}
+
+fragment MessageQueuePlanResult on MessageQueuePlan {
+  cpu(unit: CPU)
+  group
+  id
+  memory(unit: GB)
+  name
+  price {
+    amount
+    currency
+  }
+  replicas
+  storage(unit: GB)
+}
+
+fragment MessageQueueVersionResult on MessageQueueSpec {
+  patchLevelVersion
+  type
+  version
+}
+
+fragment MessageQueueIngressResult on MessageQueueIngress {
+  allowList
+}
+
+fragment MessageQueueResult on MessageQueue {
+  id
+  locked
+  name
+  state
+  namespace {
+    name
+  }
+  adminUser {
+    name
+    role
+    status
+  }
+  plan {
+    ...MessageQueuePlanResult
+  }
+  spec {
+    ...MessageQueueVersionResult
+  }
+  ingress {
+    ...MessageQueueIngressResult
+  }
+  externalConnection {
+    ...MqExternalConnectionResult
+  }
+}
+
+query messageQueuesGet {
+  messageQueues {
+    ...MessageQueueResult
+  }
+}
+
+query messageQueueGet($messageQueueInput: MessageQueueResourceInput!) {
+  messageQueue(messageQueue: $messageQueueInput) {
+    ...MessageQueueResult
+  }
+}
+
+mutation messageQueueCreate($messageQueueInput: MessageQueueCreateInput!) {
+  messageQueueCreate(messageQueue: $messageQueueInput) {
+    ...MessageQueueResult
+  }
+}
+
+mutation messageQueueModify($messageQueueInput: MessageQueueModifyInput!) {
+  messageQueueModify(messageQueue: $messageQueueInput) {
+    ...MessageQueueResult
+  }
+}
+
+mutation messageQueueDelete($messageQueueInput: MessageQueueResourceInput!) {
+  messageQueueDelete(messageQueue: $messageQueueInput)
+}
+
+query messageQueuePlansGet {
+  messageQueuePlans {
+    cpu(unit: CPU)
+    group
+    id
+    memory(unit: GB)
+    name
+    price {
+      amount
+      currency
+    }
+    replicas
+    storage(unit: GB)
+  }
+}
+
+query messageQueueVersionsGet {
+  messageQueueVersions {
+    patchLevelVersion
+    type
+    version
+  }
+}
+
+query messageQueueUserCredentialsGet(
+  $messageQueueInput: MessageQueueResourceInput!
+  $username: String!
+) {
+  messageQueueUserCredentials(messageQueue: $messageQueueInput, username: $username) {
+    name
+    dsn
+    password
+    role
+    status
+  }
+}

@@ -2,15 +2,22 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { GraphQLClient } from 'graphql-request';
 import { z } from 'zod';
 import {
-  DB_CLUSTER_LIST,
-  DB_CLUSTER_GET,
-  DB_CLUSTER_CREATE,
-  DB_CLUSTER_MODIFY,
-  DB_CLUSTER_DELETE,
-  DB_CLUSTER_LIST_PLANS,
-  DB_CLUSTER_LIST_VERSIONS,
-  DB_USER_CREDENTIALS,
-} from '../queries/database_cluster.js';
+  GetCloudDatabaseClustersDocument,
+  GetCloudDatabaseClusterDocument,
+  CloudDatabaseClusterCreateDocument,
+  CloudDatabaseClusterModifyDocument,
+  CloudDatabaseClusterDeleteDocument,
+  ClusterPlansDocument,
+  ClusterVersionsDocument,
+  GetCloudDatabaseClusterUserCredentialsDocument,
+  type GetCloudDatabaseClustersQuery,
+  type GetCloudDatabaseClusterQuery,
+  type CloudDatabaseClusterCreateMutation,
+  type CloudDatabaseClusterModifyMutation,
+  type ClusterPlansQuery,
+  type ClusterVersionsQuery,
+  type GetCloudDatabaseClusterUserCredentialsQuery,
+} from '../generated/graphql.js';
 
 const AllowListEntry = z.object({
   ip: z.string(),
@@ -60,7 +67,9 @@ export function registerDatabaseClusterTools(server: McpServer, client: GraphQLC
     'nexaa_db_cluster_list',
     { description: 'List all cloud database clusters' },
     async () => {
-      const data = await client.request<{ cloudDatabaseClusters: unknown[] }>(DB_CLUSTER_LIST);
+      const data = await client.request<GetCloudDatabaseClustersQuery>(
+        GetCloudDatabaseClustersDocument,
+      );
       return {
         content: [
           {
@@ -82,9 +91,10 @@ export function registerDatabaseClusterTools(server: McpServer, client: GraphQLC
       },
     },
     async ({ name, namespace }) => {
-      const data = await client.request<{ cloudDatabaseCluster: unknown }>(DB_CLUSTER_GET, {
-        cloudDatabaseClusterInput: { name, namespace },
-      });
+      const data = await client.request<GetCloudDatabaseClusterQuery>(
+        GetCloudDatabaseClusterDocument,
+        { cloudDatabaseClusterInput: { name, namespace } },
+      );
       return {
         content: [
           {
@@ -119,8 +129,8 @@ export function registerDatabaseClusterTools(server: McpServer, client: GraphQLC
       },
     },
     async (input) => {
-      const data = await client.request<{ cloudDatabaseClusterCreate: unknown }>(
-        DB_CLUSTER_CREATE,
+      const data = await client.request<CloudDatabaseClusterCreateMutation>(
+        CloudDatabaseClusterCreateDocument,
         { cloudDatabaseClusterInput: input },
       );
       return {
@@ -150,8 +160,8 @@ export function registerDatabaseClusterTools(server: McpServer, client: GraphQLC
       },
     },
     async (input) => {
-      const data = await client.request<{ cloudDatabaseClusterModify: unknown }>(
-        DB_CLUSTER_MODIFY,
+      const data = await client.request<CloudDatabaseClusterModifyMutation>(
+        CloudDatabaseClusterModifyDocument,
         { cloudDatabaseClusterModifyInput: input },
       );
       return {
@@ -187,7 +197,7 @@ export function registerDatabaseClusterTools(server: McpServer, client: GraphQLC
           ],
         };
       }
-      await client.request(DB_CLUSTER_DELETE, {
+      await client.request(CloudDatabaseClusterDeleteDocument, {
         cloudDatabaseClusterResourceInput: { name, namespace },
       });
       return {
@@ -203,9 +213,7 @@ export function registerDatabaseClusterTools(server: McpServer, client: GraphQLC
         'List available cloud database cluster plans with CPU, memory, storage, and pricing information',
     },
     async () => {
-      const data = await client.request<{ cloudDatabaseClusterPlans: unknown[] }>(
-        DB_CLUSTER_LIST_PLANS,
-      );
+      const data = await client.request<ClusterPlansQuery>(ClusterPlansDocument);
       return {
         content: [
           {
@@ -224,9 +232,7 @@ export function registerDatabaseClusterTools(server: McpServer, client: GraphQLC
         'List supported database engine types and versions (e.g. postgresql 15, mysql 8)',
     },
     async () => {
-      const data = await client.request<{
-        cloudDatabaseClusterVersions: unknown[];
-      }>(DB_CLUSTER_LIST_VERSIONS);
+      const data = await client.request<ClusterVersionsQuery>(ClusterVersionsDocument);
       return {
         content: [
           {
@@ -250,12 +256,13 @@ export function registerDatabaseClusterTools(server: McpServer, client: GraphQLC
       },
     },
     async ({ clusterName, clusterNamespace, username }) => {
-      const data = await client.request<{
-        cloudDatabaseClusterUserCredentials: unknown;
-      }>(DB_USER_CREDENTIALS, {
-        cloudDatabase: { name: clusterName, namespace: clusterNamespace },
-        userName: username,
-      });
+      const data = await client.request<GetCloudDatabaseClusterUserCredentialsQuery>(
+        GetCloudDatabaseClusterUserCredentialsDocument,
+        {
+          cloudDatabase: { name: clusterName, namespace: clusterNamespace },
+          userName: username,
+        },
+      );
       return {
         content: [
           {

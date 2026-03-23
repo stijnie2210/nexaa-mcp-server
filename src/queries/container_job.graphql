@@ -1,0 +1,67 @@
+fragment ContainerJobEnvironmentVariableResult on EnvironmentVariable {
+  name
+  value
+  secret
+}
+
+fragment ContainerJobMounts on Mount {
+  path
+  volume {
+    name
+    size
+  }
+}
+
+fragment ContainerJobResult on ContainerJob {
+  name
+  image
+  namespace {
+    name
+  }
+  privateRegistry {
+    name
+  }
+  resources
+  environmentVariables {
+    ...ContainerJobEnvironmentVariableResult
+  }
+  command
+  entrypoint
+  mounts {
+    ...ContainerJobMounts
+  }
+  schedule
+  enabled
+  state
+  locked
+}
+
+query containerJobList($namespaceName: String!) {
+  namespace(name: $namespaceName) {
+    containerJobs {
+      ...ContainerJobResult
+    }
+  }
+}
+
+query containerJobByName($namespaceName: String!, $containerName: String!) {
+  containerJob(name: $containerName, namespace: $namespaceName) {
+    ...ContainerJobResult
+  }
+}
+
+mutation containerJobCreate($scheduledJob: ContainerJobCreateInput!) {
+  containerJobCreate(scheduledJob: $scheduledJob) {
+    ...ContainerJobResult
+  }
+}
+
+mutation containerJobModify($scheduledJob: ContainerJobModifyInput!) {
+  containerJobModify(scheduledJob: $scheduledJob) {
+    ...ContainerJobResult
+  }
+}
+
+mutation containerJobDelete($namespaceName: String!, $containerJobName: String!) {
+  containerJobDelete(scheduledJob: { name: $containerJobName, namespace: $namespaceName })
+}

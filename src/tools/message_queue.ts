@@ -2,15 +2,22 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { GraphQLClient } from 'graphql-request';
 import { z } from 'zod';
 import {
-  MQ_LIST,
-  MQ_GET,
-  MQ_CREATE,
-  MQ_MODIFY,
-  MQ_DELETE,
-  MQ_LIST_PLANS,
-  MQ_LIST_VERSIONS,
-  MQ_USER_CREDENTIALS,
-} from '../queries/message_queue.js';
+  MessageQueuesGetDocument,
+  MessageQueueGetDocument,
+  MessageQueueCreateDocument,
+  MessageQueueModifyDocument,
+  MessageQueueDeleteDocument,
+  MessageQueuePlansGetDocument,
+  MessageQueueVersionsGetDocument,
+  MessageQueueUserCredentialsGetDocument,
+  type MessageQueuesGetQuery,
+  type MessageQueueGetQuery,
+  type MessageQueueCreateMutation,
+  type MessageQueueModifyMutation,
+  type MessageQueuePlansGetQuery,
+  type MessageQueueVersionsGetQuery,
+  type MessageQueueUserCredentialsGetQuery,
+} from '../generated/graphql.js';
 
 const AllowListEntry = z.object({
   ip: z.string(),
@@ -41,7 +48,7 @@ export function registerMessageQueueTools(server: McpServer, client: GraphQLClie
     'nexaa_message_queue_list',
     { description: 'List all message queues' },
     async () => {
-      const data = await client.request<{ messageQueues: unknown[] }>(MQ_LIST);
+      const data = await client.request<MessageQueuesGetQuery>(MessageQueuesGetDocument);
       return {
         content: [{ type: 'text', text: JSON.stringify(data.messageQueues, null, 2) }],
       };
@@ -58,7 +65,7 @@ export function registerMessageQueueTools(server: McpServer, client: GraphQLClie
       },
     },
     async ({ name, namespace }) => {
-      const data = await client.request<{ messageQueue: unknown }>(MQ_GET, {
+      const data = await client.request<MessageQueueGetQuery>(MessageQueueGetDocument, {
         messageQueueInput: { name, namespace },
       });
       return {
@@ -86,7 +93,7 @@ export function registerMessageQueueTools(server: McpServer, client: GraphQLClie
       },
     },
     async (input) => {
-      const data = await client.request<{ messageQueueCreate: unknown }>(MQ_CREATE, {
+      const data = await client.request<MessageQueueCreateMutation>(MessageQueueCreateDocument, {
         messageQueueInput: input,
       });
       return {
@@ -107,7 +114,7 @@ export function registerMessageQueueTools(server: McpServer, client: GraphQLClie
       },
     },
     async (input) => {
-      const data = await client.request<{ messageQueueModify: unknown }>(MQ_MODIFY, {
+      const data = await client.request<MessageQueueModifyMutation>(MessageQueueModifyDocument, {
         messageQueueInput: input,
       });
       return {
@@ -126,7 +133,7 @@ export function registerMessageQueueTools(server: McpServer, client: GraphQLClie
       },
     },
     async ({ name, namespace }) => {
-      await client.request(MQ_DELETE, { messageQueueInput: { name, namespace } });
+      await client.request(MessageQueueDeleteDocument, { messageQueueInput: { name, namespace } });
       return {
         content: [
           {
@@ -145,7 +152,7 @@ export function registerMessageQueueTools(server: McpServer, client: GraphQLClie
         'List available message queue plans with CPU, memory, storage, and pricing information',
     },
     async () => {
-      const data = await client.request<{ messageQueuePlans: unknown[] }>(MQ_LIST_PLANS);
+      const data = await client.request<MessageQueuePlansGetQuery>(MessageQueuePlansGetDocument);
       return {
         content: [{ type: 'text', text: JSON.stringify(data.messageQueuePlans, null, 2) }],
       };
@@ -158,7 +165,9 @@ export function registerMessageQueueTools(server: McpServer, client: GraphQLClie
       description: 'List supported message queue engine types and versions',
     },
     async () => {
-      const data = await client.request<{ messageQueueVersions: unknown[] }>(MQ_LIST_VERSIONS);
+      const data = await client.request<MessageQueueVersionsGetQuery>(
+        MessageQueueVersionsGetDocument,
+      );
       return {
         content: [
           {
@@ -182,12 +191,13 @@ export function registerMessageQueueTools(server: McpServer, client: GraphQLClie
       },
     },
     async ({ name, namespace, username }) => {
-      const data = await client.request<{
-        messageQueueUserCredentials: unknown;
-      }>(MQ_USER_CREDENTIALS, {
-        messageQueueInput: { name, namespace },
-        username,
-      });
+      const data = await client.request<MessageQueueUserCredentialsGetQuery>(
+        MessageQueueUserCredentialsGetDocument,
+        {
+          messageQueueInput: { name, namespace },
+          username,
+        },
+      );
       return {
         content: [
           {

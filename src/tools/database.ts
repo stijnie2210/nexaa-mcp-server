@@ -1,7 +1,11 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { GraphQLClient } from 'graphql-request';
 import { z } from 'zod';
-import { DB_CREATE, DB_DELETE } from '../queries/database.js';
+import {
+  CreateCloudDatabaseClusterDatabaseDocument,
+  DeleteCloudDatabaseClusterDatabaseDocument,
+  type CreateCloudDatabaseClusterDatabaseMutation,
+} from '../generated/graphql.js';
 
 export function registerDatabaseTools(server: McpServer, client: GraphQLClient): void {
   server.registerTool(
@@ -16,19 +20,20 @@ export function registerDatabaseTools(server: McpServer, client: GraphQLClient):
       },
     },
     async ({ clusterName, clusterNamespace, name, description }) => {
-      const data = await client.request<{
-        cloudDatabaseClusterDatabaseCreate: unknown;
-      }>(DB_CREATE, {
-        cloudDatabaseClusterDatabaseInput: {
-          cloudDatabaseCluster: {
-            name: clusterName,
-            namespace: clusterNamespace,
+      const data = await client.request<CreateCloudDatabaseClusterDatabaseMutation>(
+        CreateCloudDatabaseClusterDatabaseDocument,
+        {
+          cloudDatabaseClusterDatabaseInput: {
+            cloudDatabaseCluster: {
+              name: clusterName,
+              namespace: clusterNamespace,
+            },
+            name,
+            description,
+            state: 'PRESENT',
           },
-          name,
-          description,
-          state: 'PRESENT',
         },
-      });
+      );
       return {
         content: [
           {
@@ -51,9 +56,9 @@ export function registerDatabaseTools(server: McpServer, client: GraphQLClient):
       },
     },
     async ({ clusterName, clusterNamespace, name }) => {
-      await client.request(DB_DELETE, {
+      await client.request(DeleteCloudDatabaseClusterDatabaseDocument, {
         cloudDatabaseClusterDatabaseInput: {
-          cloudDatabaseCluster: {
+          cluster: {
             name: clusterName,
             namespace: clusterNamespace,
           },
