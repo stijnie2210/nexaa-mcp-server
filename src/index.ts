@@ -2,6 +2,8 @@
 import 'dotenv/config';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import express from 'express';
 import { login, createClient } from './client.js';
 import { registerNamespaceTools } from './tools/namespace.js';
 import { registerContainerTools } from './tools/container.js';
@@ -13,7 +15,7 @@ import { registerDatabaseTools } from './tools/database.js';
 import { registerDatabaseUserTools } from './tools/database_user.js';
 import { registerMessageQueueTools } from './tools/message_queue.js';
 
-async function main() {
+async function buildServer(): Promise<McpServer> {
   const username = process.env.NEXAA_USERNAME;
   const password = process.env.NEXAA_PASSWORD;
 
@@ -49,8 +51,52 @@ async function main() {
   registerDatabaseUserTools(server, client);
   registerMessageQueueTools(server, client);
 
+  return server;
+}
+
+async function startStdio() {
+  const server = await buildServer();
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }
 
-main();
+async function startHttp() {
+  const port = parseInt(process.env.PORT ?? '3000', 10);
+  const authToken = process.env.MCP_AUTH_TOKEN;
+
+  const server = await buildServer();
+
+  const app = express();
+  app.use(express.json());
+
+  app.post('/mcp', (req, res, next) => {
+    if (authToken) {
+      const header = req.headers.authorization;
+      if (header !== `Bearer ${authToken}`) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+    }
+
+    const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+    server
+      .connect(transport)
+      .then(() => transport.handleRequest(req, res, req.body))
+      .catch(next);
+  });
+
+  app.listen(port, () => {
+    process.stderr.write(`nexaa-mcp HTTP server listening on port ${port}\n`);
+    if (!authToken) {
+      process.stderr.write('Warning: MCP_AUTH_TOKEN is not set — endpoint is unprotected\n');
+    }
+  });
+}
+
+const transport = process.env.TRANSPORT ?? 'stdio';
+
+if (transport === 'http') {
+  startHttp();
+} else {
+  startStdio();
+}
