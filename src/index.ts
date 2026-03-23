@@ -69,7 +69,19 @@ async function startHttp() {
   const app = express();
   app.use(express.json());
 
-  app.post('/mcp', (req, res, next) => {
+  // Stub OAuth discovery endpoints so Claude Code's HTTP client doesn't fail
+  // trying to parse 404 HTML as JSON OAuth error responses (known Claude Code bug).
+  app.get('/.well-known/oauth-protected-resource', (_req, res) => {
+    res.json({ resource: `http://localhost:${port}` });
+  });
+  app.get('/.well-known/oauth-authorization-server', (_req, res) => {
+    res.status(404).json({ error: 'not_supported' });
+  });
+  app.post('/register', (_req, res) => {
+    res.status(404).json({ error: 'not_supported' });
+  });
+
+  const checkAuth: express.RequestHandler = (req, res, next) => {
     if (authToken) {
       const header = req.headers.authorization;
       if (header !== `Bearer ${authToken}`) {
@@ -77,13 +89,20 @@ async function startHttp() {
         return;
       }
     }
+    next();
+  };
 
+  const handleMcp: express.RequestHandler = (req, res, next) => {
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
     server
       .connect(transport)
       .then(() => transport.handleRequest(req, res, req.body))
       .catch(next);
-  });
+  };
+
+  app.post('/mcp', checkAuth, handleMcp);
+  app.get('/mcp', checkAuth, handleMcp);
+  app.delete('/mcp', checkAuth, handleMcp);
 
   app.listen(port, () => {
     process.stderr.write(`nexaa-mcp HTTP server listening on port ${port}\n`);
