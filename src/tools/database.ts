@@ -48,14 +48,26 @@ export function registerDatabaseTools(server: McpServer, client: GraphQLClient):
   server.registerTool(
     'nexaa_db_delete',
     {
-      description: 'Remove a database from a cloud database cluster',
+      description:
+        'Remove a database from a cloud database cluster. WARNING: This is irreversible. Requires confirm: true.',
       inputSchema: {
         clusterName: z.string(),
         clusterNamespace: z.string(),
         name: z.string().describe('Database name to delete'),
+        confirm: z.boolean().describe('Must be set to true to confirm deletion'),
       },
     },
-    async ({ clusterName, clusterNamespace, name }) => {
+    async ({ clusterName, clusterNamespace, name, confirm }) => {
+      if (!confirm) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: 'Deletion cancelled: confirm must be true to delete a database.',
+            },
+          ],
+        };
+      }
       await client.request(DeleteCloudDatabaseClusterDatabaseDocument, {
         cloudDatabaseClusterDatabaseInput: {
           cluster: {

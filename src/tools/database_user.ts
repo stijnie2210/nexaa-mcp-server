@@ -125,14 +125,26 @@ export function registerDatabaseUserTools(server: McpServer, client: GraphQLClie
   server.registerTool(
     'nexaa_db_user_delete',
     {
-      description: 'Delete a user from a cloud database cluster',
+      description:
+        'Delete a user from a cloud database cluster. WARNING: This is irreversible. Requires confirm: true.',
       inputSchema: {
         clusterName: z.string(),
         clusterNamespace: z.string(),
         username: z.string(),
+        confirm: z.boolean().describe('Must be set to true to confirm deletion'),
       },
     },
-    async ({ clusterName, clusterNamespace, username }) => {
+    async ({ clusterName, clusterNamespace, username, confirm }) => {
+      if (!confirm) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: 'Deletion cancelled: confirm must be true to delete a database user.',
+            },
+          ],
+        };
+      }
       await client.request(DeleteCloudDatabaseClusterUserDocument, {
         userInput: {
           cluster: { name: clusterName, namespace: clusterNamespace },

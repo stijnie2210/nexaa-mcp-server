@@ -72,13 +72,24 @@ export function registerVolumeTools(server: McpServer, client: GraphQLClient): v
   server.registerTool(
     'nexaa_volume_delete',
     {
-      description: 'Delete a volume',
+      description: 'Delete a volume. WARNING: This is irreversible. Requires confirm: true.',
       inputSchema: {
         namespace: z.string(),
         name: z.string(),
+        confirm: z.boolean().describe('Must be set to true to confirm deletion'),
       },
     },
-    async ({ namespace, name }) => {
+    async ({ namespace, name, confirm }) => {
+      if (!confirm) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: 'Deletion cancelled: confirm must be true to delete a volume.',
+            },
+          ],
+        };
+      }
       await client.request(VolumeDeleteDocument, {
         namespaceName: namespace,
         volumeName: name,

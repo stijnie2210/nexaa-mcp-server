@@ -126,13 +126,25 @@ export function registerMessageQueueTools(server: McpServer, client: GraphQLClie
   server.registerTool(
     'nexaa_message_queue_delete',
     {
-      description: 'Delete a message queue',
+      description:
+        'Delete a message queue. WARNING: This is irreversible. Requires confirm: true.',
       inputSchema: {
         name: z.string(),
         namespace: z.string(),
+        confirm: z.boolean().describe('Must be set to true to confirm deletion'),
       },
     },
-    async ({ name, namespace }) => {
+    async ({ name, namespace, confirm }) => {
+      if (!confirm) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: 'Deletion cancelled: confirm must be true to delete a message queue.',
+            },
+          ],
+        };
+      }
       await client.request(MessageQueueDeleteDocument, { messageQueueInput: { name, namespace } });
       return {
         content: [

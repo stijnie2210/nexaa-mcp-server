@@ -210,13 +210,24 @@ export function registerContainerTools(server: McpServer, client: GraphQLClient)
   server.registerTool(
     'nexaa_container_delete',
     {
-      description: 'Delete a container',
+      description: 'Delete a container. WARNING: This is irreversible. Requires confirm: true.',
       inputSchema: {
         namespace: z.string(),
         name: z.string(),
+        confirm: z.boolean().describe('Must be set to true to confirm deletion'),
       },
     },
-    async ({ namespace, name }) => {
+    async ({ namespace, name, confirm }) => {
+      if (!confirm) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: 'Deletion cancelled: confirm must be true to delete a container.',
+            },
+          ],
+        };
+      }
       await client.request(ContainerDeleteDocument, {
         namespace,
         container: name,

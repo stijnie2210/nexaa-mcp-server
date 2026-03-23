@@ -63,13 +63,25 @@ export function registerRegistryTools(server: McpServer, client: GraphQLClient):
   server.registerTool(
     'nexaa_registry_delete',
     {
-      description: 'Remove a private registry connection',
+      description:
+        'Remove a private registry connection. WARNING: This is irreversible. Requires confirm: true.',
       inputSchema: {
         namespace: z.string(),
         name: z.string(),
+        confirm: z.boolean().describe('Must be set to true to confirm deletion'),
       },
     },
-    async ({ namespace, name }) => {
+    async ({ namespace, name, confirm }) => {
+      if (!confirm) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: 'Deletion cancelled: confirm must be true to delete a registry connection.',
+            },
+          ],
+        };
+      }
       await client.request(RegistryDeleteDocument, {
         namespaceName: namespace,
         registryName: name,

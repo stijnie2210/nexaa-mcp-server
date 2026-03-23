@@ -131,13 +131,25 @@ export function registerContainerJobTools(server: McpServer, client: GraphQLClie
   server.registerTool(
     'nexaa_container_job_delete',
     {
-      description: 'Delete a container job',
+      description:
+        'Delete a container job. WARNING: This is irreversible. Requires confirm: true.',
       inputSchema: {
         namespace: z.string(),
         name: z.string(),
+        confirm: z.boolean().describe('Must be set to true to confirm deletion'),
       },
     },
-    async ({ namespace, name }) => {
+    async ({ namespace, name, confirm }) => {
+      if (!confirm) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: 'Deletion cancelled: confirm must be true to delete a container job.',
+            },
+          ],
+        };
+      }
       await client.request(ContainerJobDeleteDocument, {
         namespaceName: namespace,
         containerJobName: name,
