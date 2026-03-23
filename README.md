@@ -117,9 +117,13 @@ Or via Docker:
     "nexaa": {
       "command": "docker",
       "args": [
-        "run", "--rm", "-i",
-        "-e", "NEXAA_USERNAME=your-username",
-        "-e", "NEXAA_PASSWORD=your-password",
+        "run",
+        "--rm",
+        "-i",
+        "-e",
+        "NEXAA_USERNAME=your-username",
+        "-e",
+        "NEXAA_PASSWORD=your-password",
         "nexaa-mcp"
       ]
     }

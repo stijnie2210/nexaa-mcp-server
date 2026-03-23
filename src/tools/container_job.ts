@@ -131,8 +131,7 @@ export function registerContainerJobTools(server: McpServer, client: GraphQLClie
   server.registerTool(
     'nexaa_container_job_delete',
     {
-      description:
-        'Delete a container job. WARNING: This is irreversible. Requires confirm: true.',
+      description: 'Delete a container job. WARNING: This is irreversible. Requires confirm: true.',
       inputSchema: {
         namespace: z.string(),
         name: z.string(),

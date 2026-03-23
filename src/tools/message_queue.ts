@@ -126,8 +126,7 @@ export function registerMessageQueueTools(server: McpServer, client: GraphQLClie
   server.registerTool(
     'nexaa_message_queue_delete',
     {
-      description:
-        'Delete a message queue. WARNING: This is irreversible. Requires confirm: true.',
+      description: 'Delete a message queue. WARNING: This is irreversible. Requires confirm: true.',
       inputSchema: {
         name: z.string(),
         namespace: z.string(),
