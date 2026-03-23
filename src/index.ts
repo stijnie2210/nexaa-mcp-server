@@ -69,12 +69,10 @@ async function startHttp() {
   const app = express();
   app.use(express.json());
 
-  // Stub OAuth discovery endpoints so Claude Code's HTTP client doesn't fail
-  // trying to parse 404 HTML as JSON OAuth error responses (known Claude Code bug).
-  app.get('/.well-known/oauth-protected-resource', (req, res) => {
-    const host = req.headers['x-forwarded-host'] ?? req.headers.host ?? `localhost:${port}`;
-    const proto = req.headers['x-forwarded-proto'] ?? (req.secure ? 'https' : 'http');
-    res.json({ resource: `${proto}://${host}` });
+  // Return JSON 404s for OAuth discovery endpoints so Claude Code's HTTP client
+  // doesn't fail trying to parse HTML 404s as JSON OAuth error responses.
+  app.get('/.well-known/oauth-protected-resource', (_req, res) => {
+    res.status(404).json({ error: 'not_supported' });
   });
   app.get('/.well-known/oauth-authorization-server', (_req, res) => {
     res.status(404).json({ error: 'not_supported' });
