@@ -1,4 +1,4 @@
-import { gql } from "graphql-request";
+import { gql } from 'graphql-request';
 
 const FRAGMENTS = gql`
   fragment ExternalConnectionResult on ExternalConnection {
@@ -139,10 +139,7 @@ export const MQ_USER_CREDENTIALS = gql`
     $messageQueueInput: MessageQueueResourceInput!
     $username: String!
   ) {
-    messageQueueUserCredentials(
-      messageQueue: $messageQueueInput
-      username: $username
-    ) {
+    messageQueueUserCredentials(messageQueue: $messageQueueInput, username: $username) {
       name
       dsn
       password

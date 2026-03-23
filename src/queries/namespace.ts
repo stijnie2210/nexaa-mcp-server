@@ -1,4 +1,4 @@
-import { gql } from "graphql-request";
+import { gql } from 'graphql-request';
 
 const NAMESPACE_FRAGMENT = gql`
   fragment NamespaceResult on Namespace {

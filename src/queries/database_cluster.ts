@@ -1,4 +1,4 @@
-import { gql } from "graphql-request";
+import { gql } from 'graphql-request';
 
 const FRAGMENTS = gql`
   fragment ExternalConnectionResult on ExternalConnection {
@@ -81,9 +81,7 @@ export const DB_CLUSTER_LIST = gql`
 
 export const DB_CLUSTER_GET = gql`
   ${FRAGMENTS}
-  query getCloudDatabaseCluster(
-    $cloudDatabaseClusterInput: CloudDatabaseClusterResourceInput!
-  ) {
+  query getCloudDatabaseCluster($cloudDatabaseClusterInput: CloudDatabaseClusterResourceInput!) {
     cloudDatabaseCluster(cloudDatabase: $cloudDatabaseClusterInput) {
       ...CloudDatabaseClusterResult
     }
@@ -95,9 +93,7 @@ export const DB_CLUSTER_CREATE = gql`
   mutation cloudDatabaseClusterCreate(
     $cloudDatabaseClusterInput: CloudDatabaseClusterCreateInput!
   ) {
-    cloudDatabaseClusterCreate(
-      cloudDatabaseClusterInput: $cloudDatabaseClusterInput
-    ) {
+    cloudDatabaseClusterCreate(cloudDatabaseClusterInput: $cloudDatabaseClusterInput) {
       ...CloudDatabaseClusterResult
     }
   }
@@ -108,9 +104,7 @@ export const DB_CLUSTER_MODIFY = gql`
   mutation cloudDatabaseClusterModify(
     $cloudDatabaseClusterModifyInput: CloudDatabaseClusterModifyInput!
   ) {
-    cloudDatabaseClusterModify(
-      cloudDatabaseClusterInput: $cloudDatabaseClusterModifyInput
-    ) {
+    cloudDatabaseClusterModify(cloudDatabaseClusterInput: $cloudDatabaseClusterModifyInput) {
       ...CloudDatabaseClusterResult
     }
   }
@@ -120,9 +114,7 @@ export const DB_CLUSTER_DELETE = gql`
   mutation cloudDatabaseClusterDelete(
     $cloudDatabaseClusterResourceInput: CloudDatabaseClusterResourceInput!
   ) {
-    cloudDatabaseClusterDelete(
-      cloudDatabase: $cloudDatabaseClusterResourceInput
-    )
+    cloudDatabaseClusterDelete(cloudDatabase: $cloudDatabaseClusterResourceInput)
   }
 `;
 
@@ -157,10 +149,7 @@ export const DB_USER_CREDENTIALS = gql`
     $cloudDatabase: CloudDatabaseClusterResourceInput!
     $userName: String!
   ) {
-    cloudDatabaseClusterUserCredentials(
-      cloudDatabase: $cloudDatabase
-      username: $userName
-    ) {
+    cloudDatabaseClusterUserCredentials(cloudDatabase: $cloudDatabase, username: $userName) {
       dsn
     }
   }

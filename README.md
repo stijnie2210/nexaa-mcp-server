@@ -24,12 +24,12 @@ Copy `.env.example` to `.env` and fill in your Nexaa credentials:
 cp .env.example .env
 ```
 
-| Variable | Required | Description |
-|---|---|---|
-| `NEXAA_USERNAME` | Yes | Your Nexaa account username |
-| `NEXAA_PASSWORD` | Yes | Your Nexaa account password |
-| `NEXAA_GRAPHQL_URL` | No | GraphQL endpoint (default: `https://graphql.tilaa.com/graphql/platform`) |
-| `NEXAA_KEYCLOAK_URL` | No | Auth endpoint (default: `https://auth.tilaa.com`) |
+| Variable             | Required | Description                                                              |
+| -------------------- | -------- | ------------------------------------------------------------------------ |
+| `NEXAA_USERNAME`     | Yes      | Your Nexaa account username                                              |
+| `NEXAA_PASSWORD`     | Yes      | Your Nexaa account password                                              |
+| `NEXAA_GRAPHQL_URL`  | No       | GraphQL endpoint (default: `https://graphql.tilaa.com/graphql/platform`) |
+| `NEXAA_KEYCLOAK_URL` | No       | Auth endpoint (default: `https://auth.tilaa.com`)                        |
 
 ## Running locally
 
@@ -99,9 +99,13 @@ Add the server to your Claude MCP configuration. The server communicates over **
     "nexaa": {
       "command": "docker",
       "args": [
-        "run", "--rm", "-i",
-        "-e", "NEXAA_USERNAME=your-username",
-        "-e", "NEXAA_PASSWORD=your-password",
+        "run",
+        "--rm",
+        "-i",
+        "-e",
+        "NEXAA_USERNAME=your-username",
+        "-e",
+        "NEXAA_PASSWORD=your-password",
         "nexaa-mcp"
       ]
     }

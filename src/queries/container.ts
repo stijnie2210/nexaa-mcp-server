@@ -1,4 +1,4 @@
-import { gql } from "graphql-request";
+import { gql } from 'graphql-request';
 
 const FRAGMENTS = gql`
   fragment EnvironmentVariableResult on EnvironmentVariable {
@@ -88,12 +88,7 @@ export const CONTAINER_LIST = gql`
 export const CONTAINER_GET = gql`
   ${FRAGMENTS}
   query containerByName($namespaceName: String!, $containerName: String!) {
-    container(
-      containerResourceInput: {
-        name: $containerName
-        namespace: $namespaceName
-      }
-    ) {
+    container(containerResourceInput: { name: $containerName, namespace: $namespaceName }) {
       ...ContainerResult
     }
   }

@@ -1,20 +1,17 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { GraphQLClient } from "graphql-request";
-import { z } from "zod";
-import { DB_CREATE, DB_DELETE } from "../queries/database.js";
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { GraphQLClient } from 'graphql-request';
+import { z } from 'zod';
+import { DB_CREATE, DB_DELETE } from '../queries/database.js';
 
-export function registerDatabaseTools(
-  server: McpServer,
-  client: GraphQLClient
-): void {
+export function registerDatabaseTools(server: McpServer, client: GraphQLClient): void {
   server.registerTool(
-    "nexaa_db_create",
+    'nexaa_db_create',
     {
-      description: "Add a database to an existing cloud database cluster",
+      description: 'Add a database to an existing cloud database cluster',
       inputSchema: {
         clusterName: z.string(),
         clusterNamespace: z.string(),
-        name: z.string().describe("Database name"),
+        name: z.string().describe('Database name'),
         description: z.string().optional(),
       },
     },
@@ -29,32 +26,28 @@ export function registerDatabaseTools(
           },
           name,
           description,
-          state: "PRESENT",
+          state: 'PRESENT',
         },
       });
       return {
         content: [
           {
-            type: "text",
-            text: JSON.stringify(
-              data.cloudDatabaseClusterDatabaseCreate,
-              null,
-              2
-            ),
+            type: 'text',
+            text: JSON.stringify(data.cloudDatabaseClusterDatabaseCreate, null, 2),
           },
         ],
       };
-    }
+    },
   );
 
   server.registerTool(
-    "nexaa_db_delete",
+    'nexaa_db_delete',
     {
-      description: "Remove a database from a cloud database cluster",
+      description: 'Remove a database from a cloud database cluster',
       inputSchema: {
         clusterName: z.string(),
         clusterNamespace: z.string(),
-        name: z.string().describe("Database name to delete"),
+        name: z.string().describe('Database name to delete'),
       },
     },
     async ({ clusterName, clusterNamespace, name }) => {
@@ -70,11 +63,11 @@ export function registerDatabaseTools(
       return {
         content: [
           {
-            type: "text",
+            type: 'text',
             text: `Database "${name}" deleted from cluster "${clusterName}".`,
           },
         ],
       };
-    }
+    },
   );
 }

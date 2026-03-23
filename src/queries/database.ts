@@ -1,4 +1,4 @@
-import { gql } from "graphql-request";
+import { gql } from 'graphql-request';
 
 const DB_FRAGMENT = gql`
   fragment CloudDatabaseClusterDatabaseResult on Database {
@@ -13,9 +13,7 @@ export const DB_CREATE = gql`
   mutation createCloudDatabaseClusterDatabase(
     $cloudDatabaseClusterDatabaseInput: CloudDatabaseClusterDatabaseCreateInput!
   ) {
-    cloudDatabaseClusterDatabaseCreate(
-      databaseInput: $cloudDatabaseClusterDatabaseInput
-    ) {
+    cloudDatabaseClusterDatabaseCreate(databaseInput: $cloudDatabaseClusterDatabaseInput) {
       ...CloudDatabaseClusterDatabaseResult
     }
   }
@@ -25,8 +23,6 @@ export const DB_DELETE = gql`
   mutation deleteCloudDatabaseClusterDatabase(
     $cloudDatabaseClusterDatabaseInput: CloudDatabaseClusterDatabaseResourceInput!
   ) {
-    cloudDatabaseClusterDatabaseDelete(
-      databaseInput: $cloudDatabaseClusterDatabaseInput
-    )
+    cloudDatabaseClusterDatabaseDelete(databaseInput: $cloudDatabaseClusterDatabaseInput)
   }
 `;

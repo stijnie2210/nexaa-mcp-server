@@ -1,27 +1,24 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { GraphQLClient } from "graphql-request";
-import { z } from "zod";
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { GraphQLClient } from 'graphql-request';
+import { z } from 'zod';
 import {
   DB_USER_LIST,
   DB_USER_CREATE,
   DB_USER_MODIFY,
   DB_USER_DELETE,
-} from "../queries/database_user.js";
+} from '../queries/database_user.js';
 
 const DatabaseUserPermission = z.object({
   databaseName: z.string(),
-  permission: z.enum(["READ_ONLY", "READ_WRITE"]),
-  state: z.enum(["PRESENT", "ABSENT"]),
+  permission: z.enum(['READ_ONLY', 'READ_WRITE']),
+  state: z.enum(['PRESENT', 'ABSENT']),
 });
 
-export function registerDatabaseUserTools(
-  server: McpServer,
-  client: GraphQLClient
-): void {
+export function registerDatabaseUserTools(server: McpServer, client: GraphQLClient): void {
   server.registerTool(
-    "nexaa_db_user_list",
+    'nexaa_db_user_list',
     {
-      description: "List all users of a cloud database cluster",
+      description: 'List all users of a cloud database cluster',
       inputSchema: {
         clusterName: z.string(),
         clusterNamespace: z.string(),
@@ -39,18 +36,18 @@ export function registerDatabaseUserTools(
       return {
         content: [
           {
-            type: "text",
+            type: 'text',
             text: JSON.stringify(data.cloudDatabaseCluster.users, null, 2),
           },
         ],
       };
-    }
+    },
   );
 
   server.registerTool(
-    "nexaa_db_user_create",
+    'nexaa_db_user_create',
     {
-      description: "Create a user in a cloud database cluster",
+      description: 'Create a user in a cloud database cluster',
       inputSchema: {
         clusterName: z.string(),
         clusterNamespace: z.string(),
@@ -68,7 +65,7 @@ export function registerDatabaseUserTools(
           user: {
             name: username,
             password,
-            state: "PRESENT",
+            state: 'PRESENT',
             permissions,
           },
         },
@@ -76,16 +73,16 @@ export function registerDatabaseUserTools(
       return {
         content: [
           {
-            type: "text",
+            type: 'text',
             text: JSON.stringify(data.cloudDatabaseClusterUserCreate, null, 2),
           },
         ],
       };
-    }
+    },
   );
 
   server.registerTool(
-    "nexaa_db_user_modify",
+    'nexaa_db_user_modify',
     {
       description: "Modify a database user's permissions",
       inputSchema: {
@@ -103,7 +100,7 @@ export function registerDatabaseUserTools(
           cluster: { name: clusterName, namespace: clusterNamespace },
           user: {
             name: username,
-            state: "PRESENT",
+            state: 'PRESENT',
             permissions,
           },
         },
@@ -111,18 +108,18 @@ export function registerDatabaseUserTools(
       return {
         content: [
           {
-            type: "text",
+            type: 'text',
             text: JSON.stringify(data.cloudDatabaseClusterUserModify, null, 2),
           },
         ],
       };
-    }
+    },
   );
 
   server.registerTool(
-    "nexaa_db_user_delete",
+    'nexaa_db_user_delete',
     {
-      description: "Delete a user from a cloud database cluster",
+      description: 'Delete a user from a cloud database cluster',
       inputSchema: {
         clusterName: z.string(),
         clusterNamespace: z.string(),
@@ -139,11 +136,11 @@ export function registerDatabaseUserTools(
       return {
         content: [
           {
-            type: "text",
+            type: 'text',
             text: `User "${username}" deleted from cluster "${clusterName}".`,
           },
         ],
       };
-    }
+    },
   );
 }

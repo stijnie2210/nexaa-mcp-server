@@ -1,4 +1,4 @@
-import { gql } from "graphql-request";
+import { gql } from 'graphql-request';
 
 const FRAGMENTS = gql`
   fragment EnvironmentVariableResult on EnvironmentVariable {
@@ -80,8 +80,6 @@ export const CONTAINER_JOB_MODIFY = gql`
 
 export const CONTAINER_JOB_DELETE = gql`
   mutation containerJobDelete($namespaceName: String!, $containerJobName: String!) {
-    containerJobDelete(
-      scheduledJob: { name: $containerJobName, namespace: $namespaceName }
-    )
+    containerJobDelete(scheduledJob: { name: $containerJobName, namespace: $namespaceName })
   }
 `;

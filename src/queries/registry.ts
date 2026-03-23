@@ -1,4 +1,4 @@
-import { gql } from "graphql-request";
+import { gql } from 'graphql-request';
 
 const REGISTRY_FRAGMENT = gql`
   fragment RegistryResult on PrivateRegistry {
@@ -32,8 +32,6 @@ export const REGISTRY_CREATE = gql`
 
 export const REGISTRY_DELETE = gql`
   mutation registryDelete($namespaceName: String!, $registryName: String!) {
-    registryConnectionDelete(
-      registryConnection: { name: $registryName, namespace: $namespaceName }
-    )
+    registryConnectionDelete(registryConnection: { name: $registryName, namespace: $namespaceName })
   }
 `;

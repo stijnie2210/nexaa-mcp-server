@@ -1,17 +1,17 @@
 #!/usr/bin/env node
-import "dotenv/config";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { login, createClient } from "./client.js";
-import { registerNamespaceTools } from "./tools/namespace.js";
-import { registerContainerTools } from "./tools/container.js";
-import { registerContainerJobTools } from "./tools/container_job.js";
-import { registerVolumeTools } from "./tools/volume.js";
-import { registerRegistryTools } from "./tools/registry.js";
-import { registerDatabaseClusterTools } from "./tools/database_cluster.js";
-import { registerDatabaseTools } from "./tools/database.js";
-import { registerDatabaseUserTools } from "./tools/database_user.js";
-import { registerMessageQueueTools } from "./tools/message_queue.js";
+import 'dotenv/config';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { login, createClient } from './client.js';
+import { registerNamespaceTools } from './tools/namespace.js';
+import { registerContainerTools } from './tools/container.js';
+import { registerContainerJobTools } from './tools/container_job.js';
+import { registerVolumeTools } from './tools/volume.js';
+import { registerRegistryTools } from './tools/registry.js';
+import { registerDatabaseClusterTools } from './tools/database_cluster.js';
+import { registerDatabaseTools } from './tools/database.js';
+import { registerDatabaseUserTools } from './tools/database_user.js';
+import { registerMessageQueueTools } from './tools/message_queue.js';
 
 async function main() {
   const username = process.env.NEXAA_USERNAME;
@@ -19,7 +19,7 @@ async function main() {
 
   if (!username || !password) {
     process.stderr.write(
-      "Error: NEXAA_USERNAME and NEXAA_PASSWORD environment variables are required\n"
+      'Error: NEXAA_USERNAME and NEXAA_PASSWORD environment variables are required\n',
     );
     process.exit(1);
   }
@@ -35,8 +35,8 @@ async function main() {
   const client = createClient(accessToken);
 
   const server = new McpServer({
-    name: "nexaa-mcp",
-    version: "0.1.0",
+    name: 'nexaa-mcp',
+    version: '0.1.0',
   });
 
   registerNamespaceTools(server, client);

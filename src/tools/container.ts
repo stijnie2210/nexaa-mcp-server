@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { GraphQLClient } from "graphql-request";
-import { z } from "zod";
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { GraphQLClient } from 'graphql-request';
+import { z } from 'zod';
 import {
   CONTAINER_LIST,
   CONTAINER_GET,
@@ -8,49 +8,52 @@ import {
   CONTAINER_MODIFY,
   CONTAINER_DELETE,
   CONTAINER_LIST_PLANS,
-} from "../queries/container.js";
+} from '../queries/container.js';
 
 const EnvironmentVariable = z.object({
   name: z.string(),
   value: z.string(),
   secret: z.boolean(),
-  state: z.enum(["PRESENT", "ABSENT"]),
+  state: z.enum(['PRESENT', 'ABSENT']),
 });
 
 const AllowListEntry = z.object({
   ip: z.string(),
-  state: z.enum(["PRESENT", "ABSENT"]),
+  state: z.enum(['PRESENT', 'ABSENT']),
 });
 
 const Ingress = z.object({
   port: z.number(),
   enableTLS: z.boolean(),
-  whitelist: z.array(z.string()).describe("CIDR blocks"),
-  domainName: z.string().optional().describe("Omit to have a default domain assigned automatically by the platform"),
-  state: z.enum(["PRESENT", "ABSENT"]),
+  whitelist: z.array(z.string()).describe('CIDR blocks'),
+  domainName: z
+    .string()
+    .optional()
+    .describe('Omit to have a default domain assigned automatically by the platform'),
+  state: z.enum(['PRESENT', 'ABSENT']),
 });
 
 const HealthCheck = z.object({
   port: z.number(),
-  path: z.string().describe("e.g. /health"),
+  path: z.string().describe('e.g. /health'),
 });
 
 const MountVolume = z.object({
   name: z.string(),
   autoCreate: z.boolean(),
   increase: z.boolean(),
-  size: z.number().optional().describe("Size in GB"),
+  size: z.number().optional().describe('Size in GB'),
 });
 
 const Mount = z.object({
-  path: z.string().describe("Mount path inside the container"),
+  path: z.string().describe('Mount path inside the container'),
   volume: MountVolume,
-  state: z.enum(["PRESENT", "ABSENT"]),
+  state: z.enum(['PRESENT', 'ABSENT']),
 });
 
 const AutoScalingTrigger = z.object({
-  type: z.enum(["CPU", "MEMORY"]),
-  threshold: z.number().describe("Percentage threshold (1-100)"),
+  type: z.enum(['CPU', 'MEMORY']),
+  threshold: z.number().describe('Percentage threshold (1-100)'),
 });
 
 const AutoScaling = z.object({
@@ -66,64 +69,64 @@ const ExternalConnectionPort = z.object({
     .number()
     .optional()
     .describe(
-      "Omit when creating a new port — the platform assigns the external port automatically. Required when modifying or removing an existing port so the backend knows which port to target."
+      'Omit when creating a new port — the platform assigns the external port automatically. Required when modifying or removing an existing port so the backend knows which port to target.',
     ),
   internalPort: z.number().optional(),
-  protocol: z.enum(["TCP", "UDP"]),
-  state: z.enum(["PRESENT", "ABSENT"]),
+  protocol: z.enum(['TCP', 'UDP']),
+  state: z.enum(['PRESENT', 'ABSENT']),
   allowList: z.array(AllowListEntry),
 });
 
 const ExternalConnection = z.object({
   sharedIp: z.boolean(),
-  state: z.enum(["PRESENT", "ABSENT"]),
+  state: z.enum(['PRESENT', 'ABSENT']),
   ports: z.array(ExternalConnectionPort),
 });
 
-export function registerContainerTools(
-  server: McpServer,
-  client: GraphQLClient
-): void {
+export function registerContainerTools(server: McpServer, client: GraphQLClient): void {
   server.registerTool(
-    "nexaa_container_list_plans",
+    'nexaa_container_list_plans',
     {
-      description: "List all available container resource plans (CPU/RAM combinations)",
+      description: 'List all available container resource plans (CPU/RAM combinations)',
     },
     async () => {
       const data = await client.request<{
-        resourceSpecifications: { id: string; cpu: number; ram: number; price: { amount: number; currency: string } }[];
+        resourceSpecifications: {
+          id: string;
+          cpu: number;
+          ram: number;
+          price: { amount: number; currency: string };
+        }[];
       }>(CONTAINER_LIST_PLANS);
       return {
-        content: [{ type: "text", text: JSON.stringify(data.resourceSpecifications, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(data.resourceSpecifications, null, 2) }],
       };
-    }
+    },
   );
 
   server.registerTool(
-    "nexaa_container_list",
+    'nexaa_container_list',
     {
-      description: "List all containers in a namespace",
-      inputSchema: { namespace: z.string().describe("Namespace name") },
+      description: 'List all containers in a namespace',
+      inputSchema: { namespace: z.string().describe('Namespace name') },
     },
     async ({ namespace }) => {
       const data = await client.request<{
         namespace: { containers: unknown[] };
       }>(CONTAINER_LIST, { namespaceName: namespace });
       return {
-        content: [
-          { type: "text", text: JSON.stringify(data.namespace.containers, null, 2) },
-        ],
+        content: [{ type: 'text', text: JSON.stringify(data.namespace.containers, null, 2) }],
       };
-    }
+    },
   );
 
   server.registerTool(
-    "nexaa_container_get",
+    'nexaa_container_get',
     {
-      description: "Get a container by name",
+      description: 'Get a container by name',
       inputSchema: {
-        namespace: z.string().describe("Namespace name"),
-        name: z.string().describe("Container name"),
+        namespace: z.string().describe('Namespace name'),
+        name: z.string().describe('Container name'),
       },
     },
     async ({ namespace, name }) => {
@@ -132,25 +135,23 @@ export function registerContainerTools(
         containerName: name,
       });
       return {
-        content: [{ type: "text", text: JSON.stringify(data.container, null, 2) }],
+        content: [{ type: 'text', text: JSON.stringify(data.container, null, 2) }],
       };
-    }
+    },
   );
 
   server.registerTool(
-    "nexaa_container_create",
+    'nexaa_container_create',
     {
       description:
-        "Create a new container. resources must be a ContainerResources enum value e.g. CPU_250_RAM_500. type must be DEFAULT or STARTER.",
+        'Create a new container. resources must be a ContainerResources enum value e.g. CPU_250_RAM_500. type must be DEFAULT or STARTER.',
       inputSchema: {
         namespace: z.string(),
         name: z.string(),
-        image: z.string().describe("Container image, e.g. nginx:latest"),
-        resources: z
-          .string()
-          .describe("Resource profile, e.g. CPU_250_RAM_500, CPU_500_RAM_1000"),
-        type: z.enum(["DEFAULT", "STARTER"]).default("DEFAULT"),
-        registry: z.string().optional().describe("Private registry name"),
+        image: z.string().describe('Container image, e.g. nginx:latest'),
+        resources: z.string().describe('Resource profile, e.g. CPU_250_RAM_500, CPU_500_RAM_1000'),
+        type: z.enum(['DEFAULT', 'STARTER']).default('DEFAULT'),
+        registry: z.string().optional().describe('Private registry name'),
         command: z.array(z.string()).default([]),
         entrypoint: z.array(z.string()).default([]),
         ports: z
@@ -167,23 +168,20 @@ export function registerContainerTools(
     },
     async (input) => {
       const { namespace, ...rest } = input;
-      const data = await client.request<{ containerCreate: unknown }>(
-        CONTAINER_CREATE,
-        { input: { namespace, ...rest } }
-      );
+      const data = await client.request<{ containerCreate: unknown }>(CONTAINER_CREATE, {
+        input: { namespace, ...rest },
+      });
       return {
-        content: [
-          { type: "text", text: JSON.stringify(data.containerCreate, null, 2) },
-        ],
+        content: [{ type: 'text', text: JSON.stringify(data.containerCreate, null, 2) }],
       };
-    }
+    },
   );
 
   server.registerTool(
-    "nexaa_container_modify",
+    'nexaa_container_modify',
     {
       description:
-        "Modify an existing container. Only provide fields you want to change (except namespace and name which are always required). Note: resources cannot be changed on STARTER type containers.",
+        'Modify an existing container. Only provide fields you want to change (except namespace and name which are always required). Note: resources cannot be changed on STARTER type containers.',
       inputSchema: {
         namespace: z.string(),
         name: z.string(),
@@ -202,22 +200,17 @@ export function registerContainerTools(
       },
     },
     async (input) => {
-      const data = await client.request<{ containerModify: unknown }>(
-        CONTAINER_MODIFY,
-        { input }
-      );
+      const data = await client.request<{ containerModify: unknown }>(CONTAINER_MODIFY, { input });
       return {
-        content: [
-          { type: "text", text: JSON.stringify(data.containerModify, null, 2) },
-        ],
+        content: [{ type: 'text', text: JSON.stringify(data.containerModify, null, 2) }],
       };
-    }
+    },
   );
 
   server.registerTool(
-    "nexaa_container_delete",
+    'nexaa_container_delete',
     {
-      description: "Delete a container",
+      description: 'Delete a container',
       inputSchema: {
         namespace: z.string(),
         name: z.string(),
@@ -231,11 +224,11 @@ export function registerContainerTools(
       return {
         content: [
           {
-            type: "text",
+            type: 'text',
             text: `Container "${name}" deleted from namespace "${namespace}".`,
           },
         ],
       };
-    }
+    },
   );
 }

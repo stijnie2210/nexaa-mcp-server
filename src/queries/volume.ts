@@ -1,4 +1,4 @@
-import { gql } from "graphql-request";
+import { gql } from 'graphql-request';
 
 const VOLUME_FRAGMENT = gql`
   fragment VolumeResult on Volume {
