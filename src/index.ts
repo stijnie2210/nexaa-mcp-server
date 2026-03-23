@@ -4,6 +4,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import express from 'express';
+import { GraphQLClient } from 'graphql-request';
 import { login, createClient } from './client.js';
 import { registerNamespaceTools } from './tools/namespace.js';
 import { registerContainerTools } from './tools/container.js';
@@ -15,7 +16,7 @@ import { registerDatabaseTools } from './tools/database.js';
 import { registerDatabaseUserTools } from './tools/database_user.js';
 import { registerMessageQueueTools } from './tools/message_queue.js';
 
-async function buildServer(): Promise<McpServer> {
+async function buildGraphQLClient(): Promise<GraphQLClient> {
   const username = process.env.NEXAA_USERNAME;
   const password = process.env.NEXAA_PASSWORD;
 
@@ -34,12 +35,11 @@ async function buildServer(): Promise<McpServer> {
     process.exit(1);
   }
 
-  const client = createClient(accessToken);
+  return createClient(accessToken);
+}
 
-  const server = new McpServer({
-    name: 'nexaa-mcp',
-    version: '0.1.0',
-  });
+function buildServer(client: GraphQLClient): McpServer {
+  const server = new McpServer({ name: 'nexaa-mcp', version: '0.1.0' });
 
   registerNamespaceTools(server, client);
   registerContainerTools(server, client);
@@ -55,7 +55,8 @@ async function buildServer(): Promise<McpServer> {
 }
 
 async function startStdio() {
-  const server = await buildServer();
+  const client = await buildGraphQLClient();
+  const server = buildServer(client);
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }
@@ -64,7 +65,7 @@ async function startHttp() {
   const port = parseInt(process.env.PORT ?? '3000', 10);
   const authToken = process.env.MCP_AUTH_TOKEN;
 
-  const server = await buildServer();
+  const client = await buildGraphQLClient();
 
   const app = express();
   app.use(express.json());
@@ -93,6 +94,7 @@ async function startHttp() {
   };
 
   const handleMcp: express.RequestHandler = (req, res, next) => {
+    const server = buildServer(client);
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
     server
       .connect(transport)
