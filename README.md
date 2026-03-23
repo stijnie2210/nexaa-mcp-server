@@ -2,6 +2,8 @@
 
 An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that exposes [Nexaa](https://nexaa.io) cloud platform operations as tools to MCP-compatible clients such as Claude.
 
+> **Disclaimer:** This is a personal project and is not officially affiliated with, or maintained by Tilaa.
+
 ## What it does
 
 nexaa-mcp connects to the Nexaa GraphQL API and provides tools for managing:
