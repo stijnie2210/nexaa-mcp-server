@@ -5,7 +5,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import express from 'express';
 import { GraphQLClient } from 'graphql-request';
-import { login, createClient } from './client.js';
+import { login, createClient, type TokenSet } from './client.js';
 import { registerNamespaceTools } from './tools/namespace.js';
 import { registerContainerTools } from './tools/container.js';
 import { registerContainerJobTools } from './tools/container_job.js';
@@ -27,15 +27,15 @@ async function buildGraphQLClient(): Promise<GraphQLClient> {
     process.exit(1);
   }
 
-  let accessToken: string;
+  let tokens: TokenSet;
   try {
-    accessToken = await login(username, password);
+    tokens = await login(username, password);
   } catch (err) {
     process.stderr.write(`Error: ${err instanceof Error ? err.message : String(err)}\n`);
     process.exit(1);
   }
 
-  return createClient(accessToken);
+  return createClient(tokens);
 }
 
 function buildServer(client: GraphQLClient): McpServer {
