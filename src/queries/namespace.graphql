@@ -1,4 +1,5 @@
 fragment NamespaceResult on Namespace {
+  id
   name
   description
   state

@@ -24,6 +24,7 @@ fragment ExternalConnectionResult on ExternalConnection {
 }
 
 fragment ContainerResult on Container {
+  id
   name
   image
   privateRegistry {
@@ -55,6 +56,11 @@ fragment ContainerResult on Container {
   }
   availableReplicas
   numberOfReplicas
+  replicas {
+    name
+    status
+    statusMessage
+  }
   autoScaling {
     replicas {
       minimum

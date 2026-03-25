@@ -1535,6 +1535,7 @@ export type ExternalConnectionResultFragment = {
 };
 
 export type ContainerResultFragment = {
+  id: string;
   name: string;
   image: string;
   resources: ContainerResources;
@@ -1558,6 +1559,7 @@ export type ContainerResultFragment = {
   }>;
   mounts: Array<ContainerMountsFragment>;
   healthCheck?: { port: number; path: string } | null;
+  replicas: Array<{ name: string; status: string; statusMessage?: string | null }>;
   autoScaling?: {
     replicas: { minimum: number; maximum: number };
     triggers: Array<{ type: string; threshold: number }>;
@@ -1946,6 +1948,7 @@ export type MessageQueueUserCredentialsGetQuery = {
 };
 
 export type NamespaceResultFragment = {
+  id: string;
   name: string;
   description: string;
   state: string;
@@ -2125,6 +2128,7 @@ export const ContainerResultFragmentDoc = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'image' } },
           {
@@ -2202,6 +2206,18 @@ export const ContainerResultFragmentDoc = {
           },
           { kind: 'Field', name: { kind: 'Name', value: 'availableReplicas' } },
           { kind: 'Field', name: { kind: 'Name', value: 'numberOfReplicas' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'replicas' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'statusMessage' } },
+              ],
+            },
+          },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'autoScaling' },
@@ -3091,6 +3107,7 @@ export const NamespaceResultFragmentDoc = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'state' } },
@@ -3311,6 +3328,7 @@ export const ContainerListDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'image' } },
           {
@@ -3388,6 +3406,18 @@ export const ContainerListDocument = {
           },
           { kind: 'Field', name: { kind: 'Name', value: 'availableReplicas' } },
           { kind: 'Field', name: { kind: 'Name', value: 'numberOfReplicas' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'replicas' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'statusMessage' } },
+              ],
+            },
+          },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'autoScaling' },
@@ -3556,6 +3586,7 @@ export const ContainerByNameDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'image' } },
           {
@@ -3633,6 +3664,18 @@ export const ContainerByNameDocument = {
           },
           { kind: 'Field', name: { kind: 'Name', value: 'availableReplicas' } },
           { kind: 'Field', name: { kind: 'Name', value: 'numberOfReplicas' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'replicas' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'statusMessage' } },
+              ],
+            },
+          },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'autoScaling' },
@@ -3779,6 +3822,7 @@ export const ContainerCreateDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'image' } },
           {
@@ -3856,6 +3900,18 @@ export const ContainerCreateDocument = {
           },
           { kind: 'Field', name: { kind: 'Name', value: 'availableReplicas' } },
           { kind: 'Field', name: { kind: 'Name', value: 'numberOfReplicas' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'replicas' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'statusMessage' } },
+              ],
+            },
+          },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'autoScaling' },
@@ -4002,6 +4058,7 @@ export const ContainerModifyDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'image' } },
           {
@@ -4079,6 +4136,18 @@ export const ContainerModifyDocument = {
           },
           { kind: 'Field', name: { kind: 'Name', value: 'availableReplicas' } },
           { kind: 'Field', name: { kind: 'Name', value: 'numberOfReplicas' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'replicas' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'statusMessage' } },
+              ],
+            },
+          },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'autoScaling' },
@@ -7492,6 +7561,7 @@ export const NamespaceListDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'state' } },
@@ -7587,6 +7657,7 @@ export const NamespaceGetDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'state' } },
@@ -7682,6 +7753,7 @@ export const NamespaceCreateDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'state' } },

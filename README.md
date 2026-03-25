@@ -9,7 +9,7 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that 
 nexaa-mcp connects to the Nexaa GraphQL API and provides tools for managing:
 
 - **Namespaces** — list, create, get, delete
-- **Containers** — list, create, get, modify, delete, list plans
+- **Containers** — list, create, get, modify, delete, list plans, get logs
 - **Container Jobs** — list, create, get, modify, delete
 - **Volumes** — list, create, delete, increase
 - **Registries** — list, create, delete

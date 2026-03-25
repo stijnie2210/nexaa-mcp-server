@@ -2,6 +2,7 @@ import { GraphQLClient } from 'graphql-request';
 
 const KEYCLOAK_URL = process.env.NEXAA_KEYCLOAK_URL ?? 'https://auth.tilaa.com';
 const GRAPHQL_URL = process.env.NEXAA_GRAPHQL_URL ?? 'https://graphql.tilaa.com/graphql/platform';
+const API_BASE_URL = GRAPHQL_URL.replace(/\/graphql\/.*$/, '');
 const KEYCLOAK_REALM = 'tilaa';
 const KEYCLOAK_CLIENT_ID = 'cloud-tilaa';
 // Refresh the token this many seconds before it actually expires
@@ -62,21 +63,44 @@ async function refresh(refreshToken: string): Promise<TokenSet> {
   );
 }
 
-export function createClient(initial: TokenSet): GraphQLClient {
+export type AuthFetch = (path: string) => Promise<string>;
+
+export interface NexaaClient {
+  gql: GraphQLClient;
+  authFetch: AuthFetch;
+}
+
+export function createClient(initial: TokenSet): NexaaClient {
   let tokens = initial;
+
+  async function ensureFreshToken(): Promise<string> {
+    if (Date.now() >= tokens.expiresAt) {
+      tokens = await refresh(tokens.refreshToken);
+    }
+    return tokens.accessToken;
+  }
 
   const gql = new GraphQLClient(GRAPHQL_URL);
 
   // Wrap request to transparently refresh the token when needed
   const originalRequest = gql.request.bind(gql) as (...args: unknown[]) => Promise<unknown>;
   gql.request = async (...args: unknown[]): Promise<unknown> => {
-    if (Date.now() >= tokens.expiresAt) {
-      tokens = await refresh(tokens.refreshToken);
-    }
-    gql.setHeader('Authorization', `Bearer ${tokens.accessToken}`);
+    gql.setHeader('Authorization', `Bearer ${await ensureFreshToken()}`);
     return originalRequest(...args);
   };
 
   gql.setHeader('Authorization', `Bearer ${tokens.accessToken}`);
-  return gql;
+
+  async function authFetch(path: string): Promise<string> {
+    const token = await ensureFreshToken();
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) {
+      throw new Error(`Request failed (${response.status}): ${await response.text()}`);
+    }
+    return response.text();
+  }
+
+  return { gql, authFetch };
 }

@@ -4,8 +4,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import express from 'express';
-import { GraphQLClient } from 'graphql-request';
-import { login, createClient, type TokenSet } from './client.js';
+import { login, createClient, type TokenSet, type NexaaClient } from './client.js';
 import { registerNamespaceTools } from './tools/namespace.js';
 import { registerContainerTools } from './tools/container.js';
 import { registerContainerJobTools } from './tools/container_job.js';
@@ -16,7 +15,7 @@ import { registerDatabaseTools } from './tools/database.js';
 import { registerDatabaseUserTools } from './tools/database_user.js';
 import { registerMessageQueueTools } from './tools/message_queue.js';
 
-async function buildGraphQLClient(): Promise<GraphQLClient> {
+async function buildNexaaClient(): Promise<NexaaClient> {
   const username = process.env.NEXAA_USERNAME;
   const password = process.env.NEXAA_PASSWORD;
 
@@ -38,24 +37,25 @@ async function buildGraphQLClient(): Promise<GraphQLClient> {
   return createClient(tokens);
 }
 
-function buildServer(client: GraphQLClient): McpServer {
+function buildServer(client: NexaaClient): McpServer {
   const server = new McpServer({ name: 'nexaa-mcp', version: '0.1.0' });
+  const { gql, authFetch } = client;
 
-  registerNamespaceTools(server, client);
-  registerContainerTools(server, client);
-  registerContainerJobTools(server, client);
-  registerVolumeTools(server, client);
-  registerRegistryTools(server, client);
-  registerDatabaseClusterTools(server, client);
-  registerDatabaseTools(server, client);
-  registerDatabaseUserTools(server, client);
-  registerMessageQueueTools(server, client);
+  registerNamespaceTools(server, gql);
+  registerContainerTools(server, gql, authFetch);
+  registerContainerJobTools(server, gql);
+  registerVolumeTools(server, gql);
+  registerRegistryTools(server, gql);
+  registerDatabaseClusterTools(server, gql);
+  registerDatabaseTools(server, gql);
+  registerDatabaseUserTools(server, gql);
+  registerMessageQueueTools(server, gql);
 
   return server;
 }
 
 async function startStdio() {
-  const client = await buildGraphQLClient();
+  const client = await buildNexaaClient();
   const server = buildServer(client);
   const transport = new StdioServerTransport();
   await server.connect(transport);
@@ -65,7 +65,7 @@ async function startHttp() {
   const port = parseInt(process.env.PORT ?? '3000', 10);
   const authToken = process.env.MCP_AUTH_TOKEN;
 
-  const client = await buildGraphQLClient();
+  const client = await buildNexaaClient();
 
   const app = express();
   app.use(express.json());

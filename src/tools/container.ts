@@ -1,6 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { GraphQLClient } from 'graphql-request';
 import { z } from 'zod';
+import type { AuthFetch } from '../client.js';
 import {
   ContainerListDocument,
   ContainerByNameDocument,
@@ -88,7 +89,11 @@ const ExternalConnection = z.object({
   ports: z.array(ExternalConnectionPort),
 });
 
-export function registerContainerTools(server: McpServer, client: GraphQLClient): void {
+export function registerContainerTools(
+  server: McpServer,
+  client: GraphQLClient,
+  authFetch: AuthFetch,
+): void {
   server.registerTool(
     'nexaa_container_list_plans',
     {
@@ -155,7 +160,9 @@ export function registerContainerTools(server: McpServer, client: GraphQLClient)
         ports: z
           .array(z.string())
           .default([])
-          .describe("Port numbers as strings, e.g. ['80', '443']"),
+          .describe(
+            "Port numbers the container listens on, as strings, e.g. ['80', '443']. Must include every port referenced in ingresses or externalConnection.",
+          ),
         environmentVariables: z.array(EnvironmentVariable).default([]),
         ingresses: z.array(Ingress).default([]),
         mounts: z.array(Mount).default([]),
@@ -239,6 +246,28 @@ export function registerContainerTools(server: McpServer, client: GraphQLClient)
             text: `Container "${name}" deleted from namespace "${namespace}".`,
           },
         ],
+      };
+    },
+  );
+
+  server.registerTool(
+    'nexaa_container_logs',
+    {
+      description:
+        'Fetch logs for a container replica. Use nexaa_container_get to retrieve the container id and the replica name from the replicas array.',
+      inputSchema: {
+        container_id: z.string().describe('Container ID, obtained from nexaa_container_get'),
+        replica_name: z
+          .string()
+          .describe(
+            'Replica name, e.g. "nexaa-mcp-245k8", obtained from nexaa_container_get replicas array',
+          ),
+      },
+    },
+    async ({ container_id, replica_name }) => {
+      const logs = await authFetch(`/logs/container/${container_id}/${replica_name}`);
+      return {
+        content: [{ type: 'text', text: logs }],
       };
     },
   );
