@@ -70,12 +70,18 @@ export interface NexaaClient {
   authFetch: AuthFetch;
 }
 
-export function createClient(initial: TokenSet): NexaaClient {
+export function createClient(initial: TokenSet, relogin: () => Promise<TokenSet>): NexaaClient {
   let tokens = initial;
 
   async function ensureFreshToken(): Promise<string> {
-    if (Date.now() >= tokens.expiresAt) {
+    if (Date.now() < tokens.expiresAt) {
+      return tokens.accessToken;
+    }
+    try {
       tokens = await refresh(tokens.refreshToken);
+    } catch {
+      // Refresh token expired or session invalidated — fall back to full re-login
+      tokens = await relogin();
     }
     return tokens.accessToken;
   }

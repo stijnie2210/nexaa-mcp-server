@@ -34,7 +34,7 @@ async function buildNexaaClient(): Promise<NexaaClient> {
     process.exit(1);
   }
 
-  return createClient(tokens);
+  return createClient(tokens, () => login(username, password));
 }
 
 function buildServer(client: NexaaClient): McpServer {
