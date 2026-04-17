@@ -1,0 +1,124 @@
+query GetFinancialInsights($startDate: DateTime, $endDate: DateTime) {
+  customer {
+    priceBreakdown(startDate: $startDate, endDate: $endDate) {
+      startDate
+      endDate
+      totalSum: resourceSum(resourceType: ALL) {
+        price {
+          amount
+          currency
+        }
+        resourceType
+      }
+      ipAddressSum: resourceSum(resourceType: IPADDRESS) {
+        price {
+          amount
+          currency
+        }
+        resourceType
+      }
+      namespaceSum: resourceSum(resourceType: NAMESPACE) {
+        price {
+          amount
+          currency
+        }
+        resourceType
+      }
+      namespaceResources: resources(resourceType: NAMESPACE) {
+        ... on NamespacePriceBreakdown {
+          name
+          price {
+            amount
+            currency
+          }
+          resources(resourceType: ALL) {
+            ... on ContainerPriceBreakdown {
+              __typename
+              name
+              price {
+                amount
+                currency
+              }
+              resourceType
+              replicas {
+                name
+                cpu
+                memory(unit: GB)
+                price {
+                  amount
+                  currency
+                }
+                duration
+              }
+            }
+            ... on StarterContainerPriceBreakdown {
+              __typename
+              name
+              price {
+                amount
+                currency
+              }
+              resourceType
+            }
+            ... on ContainerJobPriceBreakdown {
+              __typename
+              name
+              price {
+                amount
+                currency
+              }
+              resourceType
+              runs {
+                cpu
+                duration
+                runs
+                memory(unit: GB)
+                price {
+                  amount
+                  currency
+                }
+              }
+            }
+            ... on DatabaseClusterPriceBreakdown {
+              __typename
+              name
+              price {
+                amount
+                currency
+              }
+              resourceType
+            }
+            ... on MessageQueuePriceBreakdown {
+              __typename
+              name
+              price {
+                amount
+                currency
+              }
+              resourceType
+            }
+            ... on VolumePriceBreakdown {
+              __typename
+              name
+              price {
+                amount
+                currency
+              }
+              resourceType
+            }
+          }
+        }
+      }
+      ipAddressResources: resources(resourceType: IPADDRESS) {
+        ... on IpAddressPriceBreakdown {
+          name
+          price {
+            amount
+            currency
+          }
+          resourceType
+        }
+      }
+    }
+  }
+}

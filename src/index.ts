@@ -14,6 +14,7 @@ import { registerDatabaseClusterTools } from './tools/database_cluster.js';
 import { registerDatabaseTools } from './tools/database.js';
 import { registerDatabaseUserTools } from './tools/database_user.js';
 import { registerMessageQueueTools } from './tools/message_queue.js';
+import { registerBillingTools } from './tools/billing.js';
 
 async function buildNexaaClient(): Promise<NexaaClient> {
   const username = process.env.NEXAA_USERNAME;
@@ -50,6 +51,7 @@ function buildServer(client: NexaaClient): McpServer {
   registerDatabaseTools(server, gql);
   registerDatabaseUserTools(server, gql);
   registerMessageQueueTools(server, gql);
+  registerBillingTools(server, gql);
 
   return server;
 }

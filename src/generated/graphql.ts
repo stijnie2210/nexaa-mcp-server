@@ -469,6 +469,13 @@ export type ContainerJobModifyInput = {
   schedule?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type ContainerJobPriceBreakdown = ResourcePriceBreakdownInterface & {
+  name: Scalars['String']['output'];
+  price: Price;
+  resourceType: PriceBreakdownResourceType;
+  runs: Array<ContainerJobRunPriceBreakdown>;
+};
+
 export type ContainerJobRun = {
   duration?: Maybe<Scalars['Int']['output']>;
   endTime?: Maybe<Scalars['DateTime']['output']>;
@@ -476,6 +483,22 @@ export type ContainerJobRun = {
   name: Scalars['String']['output'];
   startTime?: Maybe<Scalars['DateTime']['output']>;
   status: Scalars['String']['output'];
+};
+
+export type ContainerJobRunPriceBreakdown = {
+  cpu: Scalars['Float']['output'];
+  duration: Scalars['Int']['output'];
+  memory: Scalars['Float']['output'];
+  price: Price;
+  runs: Scalars['Int']['output'];
+};
+
+export type ContainerJobRunPriceBreakdownCpuArgs = {
+  unit?: InputMaybe<CpuUnit>;
+};
+
+export type ContainerJobRunPriceBreakdownMemoryArgs = {
+  unit?: InputMaybe<Unit>;
 };
 
 export type ContainerModifyInput = {
@@ -527,6 +550,29 @@ export type ContainerModifyInput = {
   registry?: InputMaybe<Scalars['String']['input']>;
   resources?: InputMaybe<ContainerResources>;
   scaling?: InputMaybe<ScalingInput>;
+};
+
+export type ContainerPriceBreakdown = ResourcePriceBreakdownInterface & {
+  name: Scalars['String']['output'];
+  price: Price;
+  replicas: Array<ContainerReplicaPriceBreakdown>;
+  resourceType: PriceBreakdownResourceType;
+};
+
+export type ContainerReplicaPriceBreakdown = {
+  cpu: Scalars['Float']['output'];
+  duration: Scalars['Int']['output'];
+  memory: Scalars['Float']['output'];
+  name: Scalars['String']['output'];
+  price: Price;
+};
+
+export type ContainerReplicaPriceBreakdownCpuArgs = {
+  unit?: InputMaybe<CpuUnit>;
+};
+
+export type ContainerReplicaPriceBreakdownMemoryArgs = {
+  unit?: InputMaybe<Unit>;
 };
 
 export type ContainerResourceInput = {
@@ -661,13 +707,13 @@ export type CpuUnit = 'CPU' | 'mCPU';
 
 export type Customer = {
   /** @deprecated this field will be removed in the future */
-  address?: Maybe<Address>;
-  /** @deprecated this field will be removed in the future */
   billingPeriod: Scalars['Int']['output'];
   hasPaymentDetails: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   /** @deprecated this field will be removed in the future */
   name: Scalars['String']['output'];
+  /** Cost: complexity = 1000, multipliers = [], defaultMultiplier = null */
+  priceBreakdown: CustomerPriceBreakdown;
   /** @deprecated this field will be removed in the future */
   recurringPayment: Scalars['Boolean']['output'];
   suspendedReason?: Maybe<SuspendedReason>;
@@ -675,11 +721,39 @@ export type Customer = {
   termOfPayment: Scalars['Int']['output'];
 };
 
+export type CustomerPriceBreakdownArgs = {
+  endDate?: InputMaybe<Scalars['DateTime']['input']>;
+  startDate?: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+export type CustomerPriceBreakdown = {
+  endDate: Scalars['DateTime']['output'];
+  resourceSum: PriceBreakdownResourceSum;
+  /** Returns the price breakdown of resources used during the billing period. */
+  resources: Array<UnionIpAddressPriceBreakdownNamespacePriceBreakdown>;
+  startDate: Scalars['DateTime']['output'];
+};
+
+export type CustomerPriceBreakdownResourceSumArgs = {
+  resourceType?: InputMaybe<PriceBreakdownResourceType>;
+};
+
+export type CustomerPriceBreakdownResourcesArgs = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  resourceType?: InputMaybe<PriceBreakdownResourceType>;
+};
+
 export type Database = {
   description?: Maybe<Scalars['String']['output']>;
   extensions: Array<Extension>;
   name: Scalars['String']['output'];
   status: Scalars['String']['output'];
+};
+
+export type DatabaseClusterPriceBreakdown = ResourcePriceBreakdownInterface & {
+  name: Scalars['String']['output'];
+  price: Price;
+  resourceType: PriceBreakdownResourceType;
 };
 
 export type DatabaseInput = {
@@ -828,6 +902,12 @@ export type IngressInput = {
   whitelist?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
+export type IpAddressPriceBreakdown = ResourcePriceBreakdownInterface & {
+  name: Scalars['String']['output'];
+  price: Price;
+  resourceType: PriceBreakdownResourceType;
+};
+
 export type Location = {
   id: Scalars['Int']['output'];
   name: Scalars['String']['output'];
@@ -902,6 +982,12 @@ export type MessageQueuePlanBenchmark = {
   connections: Scalars['Int']['output'];
   maximumMessageRate: Scalars['Int']['output'];
   minimumMessageRate: Scalars['Int']['output'];
+};
+
+export type MessageQueuePriceBreakdown = ResourcePriceBreakdownInterface & {
+  name: Scalars['String']['output'];
+  price: Price;
+  resourceType: PriceBreakdownResourceType;
 };
 
 export type MessageQueueResourceInput = {
@@ -1222,6 +1308,27 @@ export type NamespaceCreateInput = {
   name: Scalars['String']['input'];
 };
 
+export type NamespacePriceBreakdown = ResourcePriceBreakdownInterface & {
+  name: Scalars['String']['output'];
+  price: Price;
+  /** Returns the sum of the price per resource type. */
+  resourceSum: PriceBreakdownResourceSum;
+  resourceType: PriceBreakdownResourceType;
+  /**
+   * Returns the price breakdown of resource in this namespace.
+   * Each resource has its own price breakdown. Depending on the resource type you can query more or less details.
+   */
+  resources: Array<ResourcePriceBreakdownInterface>;
+};
+
+export type NamespacePriceBreakdownResourceSumArgs = {
+  resourceType?: InputMaybe<PriceBreakdownResourceType>;
+};
+
+export type NamespacePriceBreakdownResourcesArgs = {
+  resourceType: PriceBreakdownResourceType;
+};
+
 export type NodeType = {
   description?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['Int']['output']>;
@@ -1257,6 +1364,22 @@ export type Price = {
   amount?: Maybe<Scalars['Int']['output']>;
   currency?: Maybe<Scalars['String']['output']>;
 };
+
+export type PriceBreakdownResourceSum = {
+  price: Price;
+  resourceType: PriceBreakdownResourceType;
+};
+
+export type PriceBreakdownResourceType =
+  | 'ALL'
+  | 'CONTAINER'
+  | 'CONTAINER_JOB'
+  | 'DATABASE_CLUSTER'
+  | 'IPADDRESS'
+  | 'MESSAGE_QUEUE'
+  | 'NAMESPACE'
+  | 'STARTER_CONTAINER'
+  | 'VOLUME';
 
 export type PricingPlan = {
   id: Scalars['ID']['output'];
@@ -1304,6 +1427,8 @@ export type Query = {
   container: Container;
   /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
   containerJob: ContainerJob;
+  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  customer?: Maybe<Customer>;
   /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
   databaseVersions: Array<DatabaseVersion>;
   /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
@@ -1430,6 +1555,18 @@ export type ResourceNameInput = {
   namespace: Scalars['String']['input'];
 };
 
+export type ResourcePriceBreakdown = ResourcePriceBreakdownInterface & {
+  name: Scalars['String']['output'];
+  price: Price;
+  resourceType: PriceBreakdownResourceType;
+};
+
+export type ResourcePriceBreakdownInterface = {
+  name: Scalars['String']['output'];
+  price: Price;
+  resourceType: PriceBreakdownResourceType;
+};
+
 export type ResourceSpecification = {
   cpu: Scalars['Float']['output'];
   id: Scalars['ID']['output'];
@@ -1447,6 +1584,12 @@ export type Spec = {
   patchLevelVersion: Scalars['String']['output'];
   type: Scalars['String']['output'];
   version: Scalars['String']['output'];
+};
+
+export type StarterContainerPriceBreakdown = ResourcePriceBreakdownInterface & {
+  name: Scalars['String']['output'];
+  price: Price;
+  resourceType: PriceBreakdownResourceType;
 };
 
 export type State = 'ABSENT' | 'PRESENT';
@@ -1475,6 +1618,10 @@ export type SuspendedReason =
   | 'MALICIOUS_ACTIVITY'
   | 'PAYMENT_ISSUES'
   | 'SUPPORTING_PROHIBITED_CONTENT';
+
+export type UnionIpAddressPriceBreakdownNamespacePriceBreakdown =
+  | IpAddressPriceBreakdown
+  | NamespacePriceBreakdown;
 
 export type Unit = 'GB' | 'MB' | 'TB';
 
@@ -1510,9 +1657,109 @@ export type VolumeModifyInput = {
   size: Scalars['Int']['input'];
 };
 
+export type VolumePriceBreakdown = ResourcePriceBreakdownInterface & {
+  name: Scalars['String']['output'];
+  price: Price;
+  resourceType: PriceBreakdownResourceType;
+};
+
 export type VolumeResourceInput = {
   name: Scalars['String']['input'];
   namespace: Scalars['String']['input'];
+};
+
+export type GetFinancialInsightsQueryVariables = Exact<{
+  startDate?: InputMaybe<Scalars['DateTime']['input']>;
+  endDate?: InputMaybe<Scalars['DateTime']['input']>;
+}>;
+
+export type GetFinancialInsightsQuery = {
+  customer?: {
+    priceBreakdown: {
+      startDate: any;
+      endDate: any;
+      totalSum: {
+        resourceType: PriceBreakdownResourceType;
+        price: { amount?: number | null; currency?: string | null };
+      };
+      ipAddressSum: {
+        resourceType: PriceBreakdownResourceType;
+        price: { amount?: number | null; currency?: string | null };
+      };
+      namespaceSum: {
+        resourceType: PriceBreakdownResourceType;
+        price: { amount?: number | null; currency?: string | null };
+      };
+      namespaceResources: Array<
+        | {
+            name: string;
+            price: { amount?: number | null; currency?: string | null };
+            resources: Array<
+              | {
+                  __typename: 'ContainerJobPriceBreakdown';
+                  name: string;
+                  resourceType: PriceBreakdownResourceType;
+                  price: { amount?: number | null; currency?: string | null };
+                  runs: Array<{
+                    cpu: number;
+                    duration: number;
+                    runs: number;
+                    memory: number;
+                    price: { amount?: number | null; currency?: string | null };
+                  }>;
+                }
+              | {
+                  __typename: 'ContainerPriceBreakdown';
+                  name: string;
+                  resourceType: PriceBreakdownResourceType;
+                  price: { amount?: number | null; currency?: string | null };
+                  replicas: Array<{
+                    name: string;
+                    cpu: number;
+                    memory: number;
+                    duration: number;
+                    price: { amount?: number | null; currency?: string | null };
+                  }>;
+                }
+              | {
+                  __typename: 'DatabaseClusterPriceBreakdown';
+                  name: string;
+                  resourceType: PriceBreakdownResourceType;
+                  price: { amount?: number | null; currency?: string | null };
+                }
+              | {
+                  __typename: 'MessageQueuePriceBreakdown';
+                  name: string;
+                  resourceType: PriceBreakdownResourceType;
+                  price: { amount?: number | null; currency?: string | null };
+                }
+              | {
+                  __typename: 'StarterContainerPriceBreakdown';
+                  name: string;
+                  resourceType: PriceBreakdownResourceType;
+                  price: { amount?: number | null; currency?: string | null };
+                }
+              | {
+                  __typename: 'VolumePriceBreakdown';
+                  name: string;
+                  resourceType: PriceBreakdownResourceType;
+                  price: { amount?: number | null; currency?: string | null };
+                }
+              | Record<PropertyKey, never>
+            >;
+          }
+        | Record<PropertyKey, never>
+      >;
+      ipAddressResources: Array<
+        | {
+            name: string;
+            resourceType: PriceBreakdownResourceType;
+            price: { amount?: number | null; currency?: string | null };
+          }
+        | Record<PropertyKey, never>
+      >;
+    };
+  } | null;
 };
 
 export type EnvironmentVariableResultFragment = {
@@ -3212,6 +3459,622 @@ export const VolumeResultFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<VolumeResultFragment, unknown>;
+export const GetFinancialInsightsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetFinancialInsights' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'startDate' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'DateTime' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'endDate' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'DateTime' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'customer' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'priceBreakdown' },
+                  arguments: [
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'startDate' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'startDate' } },
+                    },
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'endDate' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'endDate' } },
+                    },
+                  ],
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'startDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'endDate' } },
+                      {
+                        kind: 'Field',
+                        alias: { kind: 'Name', value: 'totalSum' },
+                        name: { kind: 'Name', value: 'resourceSum' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'resourceType' },
+                            value: { kind: 'EnumValue', value: 'ALL' },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'price' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
+                                ],
+                              },
+                            },
+                            { kind: 'Field', name: { kind: 'Name', value: 'resourceType' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        alias: { kind: 'Name', value: 'ipAddressSum' },
+                        name: { kind: 'Name', value: 'resourceSum' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'resourceType' },
+                            value: { kind: 'EnumValue', value: 'IPADDRESS' },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'price' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
+                                ],
+                              },
+                            },
+                            { kind: 'Field', name: { kind: 'Name', value: 'resourceType' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        alias: { kind: 'Name', value: 'namespaceSum' },
+                        name: { kind: 'Name', value: 'resourceSum' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'resourceType' },
+                            value: { kind: 'EnumValue', value: 'NAMESPACE' },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'price' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
+                                ],
+                              },
+                            },
+                            { kind: 'Field', name: { kind: 'Name', value: 'resourceType' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        alias: { kind: 'Name', value: 'namespaceResources' },
+                        name: { kind: 'Name', value: 'resources' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'resourceType' },
+                            value: { kind: 'EnumValue', value: 'NAMESPACE' },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'InlineFragment',
+                              typeCondition: {
+                                kind: 'NamedType',
+                                name: { kind: 'Name', value: 'NamespacePriceBreakdown' },
+                              },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'price' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'currency' },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'resources' },
+                                    arguments: [
+                                      {
+                                        kind: 'Argument',
+                                        name: { kind: 'Name', value: 'resourceType' },
+                                        value: { kind: 'EnumValue', value: 'ALL' },
+                                      },
+                                    ],
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'InlineFragment',
+                                          typeCondition: {
+                                            kind: 'NamedType',
+                                            name: {
+                                              kind: 'Name',
+                                              value: 'ContainerPriceBreakdown',
+                                            },
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: '__typename' },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'name' },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'price' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'amount' },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'currency' },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'resourceType' },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'replicas' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'name' },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'cpu' },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'memory' },
+                                                      arguments: [
+                                                        {
+                                                          kind: 'Argument',
+                                                          name: { kind: 'Name', value: 'unit' },
+                                                          value: { kind: 'EnumValue', value: 'GB' },
+                                                        },
+                                                      ],
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'price' },
+                                                      selectionSet: {
+                                                        kind: 'SelectionSet',
+                                                        selections: [
+                                                          {
+                                                            kind: 'Field',
+                                                            name: { kind: 'Name', value: 'amount' },
+                                                          },
+                                                          {
+                                                            kind: 'Field',
+                                                            name: {
+                                                              kind: 'Name',
+                                                              value: 'currency',
+                                                            },
+                                                          },
+                                                        ],
+                                                      },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'duration' },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: 'InlineFragment',
+                                          typeCondition: {
+                                            kind: 'NamedType',
+                                            name: {
+                                              kind: 'Name',
+                                              value: 'StarterContainerPriceBreakdown',
+                                            },
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: '__typename' },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'name' },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'price' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'amount' },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'currency' },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'resourceType' },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: 'InlineFragment',
+                                          typeCondition: {
+                                            kind: 'NamedType',
+                                            name: {
+                                              kind: 'Name',
+                                              value: 'ContainerJobPriceBreakdown',
+                                            },
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: '__typename' },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'name' },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'price' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'amount' },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'currency' },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'resourceType' },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'runs' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'cpu' },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'duration' },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'runs' },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'memory' },
+                                                      arguments: [
+                                                        {
+                                                          kind: 'Argument',
+                                                          name: { kind: 'Name', value: 'unit' },
+                                                          value: { kind: 'EnumValue', value: 'GB' },
+                                                        },
+                                                      ],
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'price' },
+                                                      selectionSet: {
+                                                        kind: 'SelectionSet',
+                                                        selections: [
+                                                          {
+                                                            kind: 'Field',
+                                                            name: { kind: 'Name', value: 'amount' },
+                                                          },
+                                                          {
+                                                            kind: 'Field',
+                                                            name: {
+                                                              kind: 'Name',
+                                                              value: 'currency',
+                                                            },
+                                                          },
+                                                        ],
+                                                      },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: 'InlineFragment',
+                                          typeCondition: {
+                                            kind: 'NamedType',
+                                            name: {
+                                              kind: 'Name',
+                                              value: 'DatabaseClusterPriceBreakdown',
+                                            },
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: '__typename' },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'name' },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'price' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'amount' },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'currency' },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'resourceType' },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: 'InlineFragment',
+                                          typeCondition: {
+                                            kind: 'NamedType',
+                                            name: {
+                                              kind: 'Name',
+                                              value: 'MessageQueuePriceBreakdown',
+                                            },
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: '__typename' },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'name' },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'price' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'amount' },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'currency' },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'resourceType' },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: 'InlineFragment',
+                                          typeCondition: {
+                                            kind: 'NamedType',
+                                            name: { kind: 'Name', value: 'VolumePriceBreakdown' },
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: '__typename' },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'name' },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'price' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'amount' },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'currency' },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'resourceType' },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        alias: { kind: 'Name', value: 'ipAddressResources' },
+                        name: { kind: 'Name', value: 'resources' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'resourceType' },
+                            value: { kind: 'EnumValue', value: 'IPADDRESS' },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'InlineFragment',
+                              typeCondition: {
+                                kind: 'NamedType',
+                                name: { kind: 'Name', value: 'IpAddressPriceBreakdown' },
+                              },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'price' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'currency' },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'resourceType' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetFinancialInsightsQuery, GetFinancialInsightsQueryVariables>;
 export const ContainerListDocument = {
   kind: 'Document',
   definitions: [

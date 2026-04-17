@@ -559,6 +559,13 @@ input ContainerJobModifyInput {
   mounts: [MountInput!]
 }
 
+type ContainerJobPriceBreakdown implements ResourcePriceBreakdownInterface {
+  name: String!
+  price: Price!
+  resourceType: PriceBreakdownResourceType!
+  runs: [ContainerJobRunPriceBreakdown!]!
+}
+
 type ContainerJobRun {
   duration: Int
   endTime: DateTime
@@ -566,6 +573,14 @@ type ContainerJobRun {
   name: String!
   startTime: DateTime
   status: String!
+}
+
+type ContainerJobRunPriceBreakdown {
+  cpu(unit: CpuUnit = CPU): Float!
+  duration: Int!
+  memory(unit: Unit = GB): Float!
+  price: Price!
+  runs: Int!
 }
 
 input ContainerModifyInput {
@@ -640,6 +655,21 @@ input ContainerModifyInput {
 
   ""
   externalConnection: ExternalConnectionInput
+}
+
+type ContainerPriceBreakdown implements ResourcePriceBreakdownInterface {
+  name: String!
+  price: Price!
+  replicas: [ContainerReplicaPriceBreakdown!]!
+  resourceType: PriceBreakdownResourceType!
+}
+
+type ContainerReplicaPriceBreakdown {
+  cpu(unit: CpuUnit = CPU): Float!
+  duration: Int!
+  memory(unit: Unit = GB): Float!
+  name: String!
+  price: Price!
 }
 
 input ContainerResourceInput {
@@ -783,14 +813,32 @@ enum CpuUnit {
 }
 
 type Customer {
-  address: Address @deprecated(reason: "this field will be removed in the future")
   billingPeriod: Int! @deprecated(reason: "this field will be removed in the future")
   hasPaymentDetails: Boolean!
   id: ID!
   name: String! @deprecated(reason: "this field will be removed in the future")
+
+  """
+  Cost: complexity = 1000, multipliers = [], defaultMultiplier = null
+  """
+  priceBreakdown(startDate: DateTime = null, endDate: DateTime = null): CustomerPriceBreakdown!
+
   recurringPayment: Boolean! @deprecated(reason: "this field will be removed in the future")
   suspendedReason: SuspendedReason
   termOfPayment: Int! @deprecated(reason: "this field will be removed in the future")
+}
+
+type CustomerPriceBreakdown {
+  endDate: DateTime!
+  resourceSum(resourceType: PriceBreakdownResourceType = ALL): PriceBreakdownResourceSum!
+
+  "Returns the price breakdown of resources used during the billing period."
+  resources(
+    resourceType: PriceBreakdownResourceType = ALL
+    name: String = null
+  ): [UnionIpAddressPriceBreakdownNamespacePriceBreakdown!]!
+
+  startDate: DateTime!
 }
 
 type Database {
@@ -798,6 +846,12 @@ type Database {
   extensions: [Extension!]!
   name: String!
   status: String!
+}
+
+type DatabaseClusterPriceBreakdown implements ResourcePriceBreakdownInterface {
+  name: String!
+  price: Price!
+  resourceType: PriceBreakdownResourceType!
 }
 
 input DatabaseInput {
@@ -999,6 +1053,12 @@ input IngressInput {
   state: State! = PRESENT
 }
 
+type IpAddressPriceBreakdown implements ResourcePriceBreakdownInterface {
+  name: String!
+  price: Price!
+  resourceType: PriceBreakdownResourceType!
+}
+
 type Location {
   id: Int!
   name: String!
@@ -1080,6 +1140,12 @@ type MessageQueuePlanBenchmark {
   connections: Int!
   maximumMessageRate: Int!
   minimumMessageRate: Int!
+}
+
+type MessageQueuePriceBreakdown implements ResourcePriceBreakdownInterface {
+  name: String!
+  price: Price!
+  resourceType: PriceBreakdownResourceType!
 }
 
 input MessageQueueResourceInput {
@@ -1373,6 +1439,22 @@ input NamespaceCreateInput {
 "The unique identifier of a cluster namespace, represented as an integer."
 scalar NamespaceId
 
+type NamespacePriceBreakdown implements ResourcePriceBreakdownInterface {
+  name: String!
+  price: Price!
+
+  "Returns the sum of the price per resource type."
+  resourceSum(resourceType: PriceBreakdownResourceType = ALL): PriceBreakdownResourceSum!
+
+  resourceType: PriceBreakdownResourceType!
+
+  """
+  Returns the price breakdown of resource in this namespace.
+  Each resource has its own price breakdown. Depending on the resource type you can query more or less details.
+  """
+  resources(resourceType: PriceBreakdownResourceType!): [ResourcePriceBreakdownInterface!]!
+}
+
 type NodeType {
   description: String
   id: Int
@@ -1403,6 +1485,23 @@ type Plan {
 type Price {
   amount: Int
   currency: String
+}
+
+type PriceBreakdownResourceSum {
+  price: Price!
+  resourceType: PriceBreakdownResourceType!
+}
+
+enum PriceBreakdownResourceType {
+  ALL
+  CONTAINER
+  STARTER_CONTAINER
+  CONTAINER_JOB
+  VOLUME
+  DATABASE_CLUSTER
+  MESSAGE_QUEUE
+  IPADDRESS
+  NAMESPACE
 }
 
 type PricingPlan {
@@ -1487,6 +1586,11 @@ type Query {
   Cost: complexity = 100, multipliers = [], defaultMultiplier = null
   """
   containerJob(namespace: String!, name: String!): ContainerJob!
+
+  """
+  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+  """
+  customer: Customer
 
   """
   Cost: complexity = 100, multipliers = [], defaultMultiplier = null
@@ -1611,6 +1715,18 @@ input ResourceNameInput {
   namespace: String!
 }
 
+type ResourcePriceBreakdown implements ResourcePriceBreakdownInterface {
+  name: String!
+  price: Price!
+  resourceType: PriceBreakdownResourceType!
+}
+
+interface ResourcePriceBreakdownInterface {
+  name: String!
+  price: Price!
+  resourceType: PriceBreakdownResourceType!
+}
+
 type ResourceSpecification {
   cpu: Float!
   id: ID!
@@ -1628,6 +1744,12 @@ type Spec {
   patchLevelVersion: String!
   type: String!
   version: String!
+}
+
+type StarterContainerPriceBreakdown implements ResourcePriceBreakdownInterface {
+  name: String!
+  price: Price!
+  resourceType: PriceBreakdownResourceType!
 }
 
 enum State {
@@ -1661,6 +1783,10 @@ enum SuspendedReason {
   SUPPORTING_PROHIBITED_CONTENT
   DEFAULT
 }
+
+union UnionIpAddressPriceBreakdownNamespacePriceBreakdown =
+  | IpAddressPriceBreakdown
+  | NamespacePriceBreakdown
 
 enum Unit {
   MB
@@ -1700,6 +1826,12 @@ input VolumeModifyInput {
 
   ""
   size: Int!
+}
+
+type VolumePriceBreakdown implements ResourcePriceBreakdownInterface {
+  name: String!
+  price: Price!
+  resourceType: PriceBreakdownResourceType!
 }
 
 input VolumeResourceInput {
