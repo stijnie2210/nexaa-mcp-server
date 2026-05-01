@@ -2,6 +2,7 @@
   "name": "nexaa-mcp",
   "version": "0.1.0",
   "description": "MCP server for the Nexaa cloud platform API",
+  "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
   "files": [
