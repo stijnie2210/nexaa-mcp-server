@@ -1,5 +1,9 @@
 query GetFinancialInsights($startDate: DateTime, $endDate: DateTime) {
   customer {
+    credit {
+      amount
+      currency
+    }
     priceBreakdown(startDate: $startDate, endDate: $endDate) {
       startDate
       endDate

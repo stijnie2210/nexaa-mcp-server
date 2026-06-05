@@ -29,6 +29,7 @@ fragment CloudDatabaseClusterUserResult on DatabaseUser {
 
 fragment CloudDatabaseClusterResult on CloudDatabaseCluster {
   id
+  createdAt
   databases {
     ...CloudDatabaseClusterDatabaseResult
   }

@@ -35,6 +35,7 @@ fragment MessageQueueIngressResult on MessageQueueIngress {
 
 fragment MessageQueueResult on MessageQueue {
   id
+  createdAt
   locked
   name
   state

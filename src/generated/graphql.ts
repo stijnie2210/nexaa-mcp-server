@@ -146,6 +146,7 @@ export type CloudDatabaseCluster = {
   adminUser?: Maybe<DatabaseUser>;
   /** Cost: complexity = 10, multipliers = [type], defaultMultiplier = null */
   advisories: Array<CloudDatabaseAdvisoryInterface>;
+  createdAt: Scalars['DateTime']['output'];
   databases: Array<Database>;
   externalConnection?: Maybe<ExternalConnection>;
   /**
@@ -281,7 +282,8 @@ export type Container = {
   /** @deprecated use `resources` instead */
   resourceSpecification: ResourceSpecification;
   resources: ContainerResources;
-  startedAt: Scalars['DateTime']['output'];
+  /** @deprecated this field will be removed in the future, and doesn't have a replacement' */
+  startedAt?: Maybe<Scalars['DateTime']['output']>;
   state: Scalars['String']['output'];
   type: ContainerType;
 };
@@ -708,6 +710,7 @@ export type CpuUnit = 'CPU' | 'mCPU';
 export type Customer = {
   /** @deprecated this field will be removed in the future */
   billingPeriod: Scalars['Int']['output'];
+  credit: Price;
   hasPaymentDetails: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   /** @deprecated this field will be removed in the future */
@@ -919,6 +922,7 @@ export type ManualScalingInput = {
 
 export type MessageQueue = {
   adminUser?: Maybe<MessageQueueUser>;
+  createdAt: Scalars['DateTime']['output'];
   externalConnection?: Maybe<ExternalConnection>;
   id: Scalars['String']['output'];
   ingress: MessageQueueIngress;
@@ -1675,6 +1679,7 @@ export type GetFinancialInsightsQueryVariables = Exact<{
 
 export type GetFinancialInsightsQuery = {
   customer?: {
+    credit: { amount?: number | null; currency?: string | null };
     priceBreakdown: {
       startDate: any;
       endDate: any;
@@ -1962,6 +1967,7 @@ export type CloudDatabaseClusterUserResultFragment = {
 
 export type CloudDatabaseClusterResultFragment = {
   id: string;
+  createdAt: any;
   name: string;
   hostname: string;
   state: string;
@@ -2119,6 +2125,7 @@ export type MessageQueueIngressResultFragment = { allowList?: Array<string> | nu
 
 export type MessageQueueResultFragment = {
   id: string;
+  createdAt: any;
   locked: boolean;
   name: string;
   state: string;
@@ -2815,6 +2822,7 @@ export const CloudDatabaseClusterResultFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'databases' },
@@ -3162,6 +3170,7 @@ export const MessageQueueResultFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'locked' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'state' } },
@@ -3487,6 +3496,17 @@ export const GetFinancialInsightsDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'credit' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
+                    ],
+                  },
+                },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'priceBreakdown' },
@@ -5992,6 +6012,7 @@ export const GetCloudDatabaseClustersDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'databases' },
@@ -6232,6 +6253,7 @@ export const GetCloudDatabaseClusterDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'databases' },
@@ -6472,6 +6494,7 @@ export const CloudDatabaseClusterCreateDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'databases' },
@@ -6715,6 +6738,7 @@ export const CloudDatabaseClusterModifyDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'databases' },
@@ -7430,6 +7454,7 @@ export const MessageQueuesGetDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'locked' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'state' } },
@@ -7660,6 +7685,7 @@ export const MessageQueueGetDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'locked' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'state' } },
@@ -7890,6 +7916,7 @@ export const MessageQueueCreateDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'locked' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'state' } },
@@ -8120,6 +8147,7 @@ export const MessageQueueModifyDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'locked' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'state' } },
