@@ -1,185 +1,163 @@
 # nexaa-mcp
 
-An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that exposes [Nexaa](https://nexaa.io) cloud platform operations as tools to MCP-compatible clients such as Claude.
+MCP (Model Context Protocol) server for the [Nexaa](https://nexaa.cloud) cloud platform. Exposes Nexaa operations as tools to any MCP-compatible client such as [Claude](https://claude.ai/code).
 
-> **Disclaimer:** This is a personal project and is not officially affiliated with, or maintained by Tilaa.
+## Installation
 
-## What it does
+### Pre-built binary
 
-nexaa-mcp connects to the Nexaa GraphQL API and provides tools for managing:
+Download the latest release from the [releases page](https://github.com/nexaa-cloud/nexaa-mcp/releases) and place the binary somewhere on your `$PATH`.
 
-- **Namespaces** — list, create, get, delete
-- **Containers** — list, create, get, modify, delete, list plans, get logs
-- **Container Jobs** — list, create, get, modify, delete
-- **Volumes** — list, create, delete, increase
-- **Registries** — list, create, delete
-- **Database Clusters** — list, create, get, modify, delete, list plans/versions
-- **Databases** — create, delete
-- **Database Users** — list, create, get, modify, delete, get credentials
-- **Message Queues** — list, create, get, modify, delete, get credentials, list plans/versions
+### Build from source
 
-## Configuration
-
-Copy `.env.example` to `.env` and fill in your credentials:
+Requires Go 1.21+.
 
 ```bash
-cp .env.example .env
+git clone https://github.com/nexaa-cloud/nexaa-mcp
+cd nexaa-mcp
+go build -o nexaa-mcp .
 ```
 
-| Variable             | Required | Description                                                              |
-| -------------------- | -------- | ------------------------------------------------------------------------ |
-| `NEXAA_USERNAME`     | Yes      | Your Nexaa account username                                              |
-| `NEXAA_PASSWORD`     | Yes      | Your Nexaa account password                                              |
-| `NEXAA_GRAPHQL_URL`  | No       | GraphQL endpoint (default: `https://graphql.tilaa.com/graphql/platform`) |
-| `NEXAA_KEYCLOAK_URL` | No       | Auth endpoint (default: `https://auth.tilaa.com`)                        |
-| `TRANSPORT`          | No       | `stdio` (default) or `http`                                              |
-| `PORT`               | No       | HTTP port when `TRANSPORT=http` (default: `3000`)                        |
-| `MCP_AUTH_TOKEN`     | No       | Bearer token to protect the HTTP endpoint (recommended when hosting)     |
+## Authentication
 
-## Transports
+The server supports two authentication methods:
 
-### stdio (default)
-
-The server communicates over stdin/stdout. This is the standard mode for running nexaa-mcp as a local subprocess from Claude Code or another MCP client.
-
-### HTTP
-
-Set `TRANSPORT=http` to start an HTTP server instead. This is the mode to use when hosting nexaa-mcp remotely (e.g. in a container).
-
-The server exposes a single endpoint at `/mcp` that implements the [MCP Streamable HTTP transport](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http).
-
-Set `MCP_AUTH_TOKEN` to require a `Authorization: Bearer <token>` header on all requests. Without it the endpoint is unprotected.
-
-## Running locally
-
-**Prerequisites:** Node.js 22+
-
+**Environment variables (recommended for MCP clients):**
 ```bash
-npm install
-npm run dev
+NEXAA_USERNAME=your@email.com
+NEXAA_PASSWORD=yourpassword
 ```
 
-To build and run the compiled output:
+**Reuse an existing nexaa-cli session:**  
+If you have previously logged in with [`nexaa-cli login`](https://github.com/nexaa-cloud/nexaa-cli), the server will pick up the token from `auth.json` automatically.
 
-```bash
-npm run build
-npm start
-```
+Optional environment variables:
 
-## Running with Docker
+| Variable | Default | Description |
+|---|---|---|
+| `NEXAA_GRAPHQL_URL` | `https://graphql.tilaa.com/graphql/platform` | GraphQL endpoint |
+| `NEXAA_KEYCLOAK_URL` | `https://auth.tilaa.com` | Auth endpoint |
+| `NEXAA_TOKEN_FILE` | `./auth.json` | Token cache file |
+| `MCP_HTTP_PORT` | _(unset)_ | Enable HTTP/SSE transport on this port |
+| `MCP_HTTP_TOKEN` | _(unset)_ | Require this Bearer token on HTTP requests |
 
-Build the image:
+## Usage with Claude
 
-```bash
-docker build -t nexaa-mcp .
-```
-
-**stdio mode** (local use):
-
-```bash
-docker run --rm -i --env-file .env nexaa-mcp
-```
-
-**HTTP mode** (hosted use):
-
-```bash
-docker run --rm \
-  -e NEXAA_USERNAME=your-username \
-  -e NEXAA_PASSWORD=your-password \
-  -e TRANSPORT=http \
-  -e MCP_AUTH_TOKEN=your-secret-token \
-  -p 3000:3000 \
-  nexaa-mcp
-```
-
-## Connecting to Claude Code
-
-### Local (stdio)
+Add the following to your Claude MCP configuration (e.g. `~/.claude/settings.json` or a project-level `.mcp.json`):
 
 ```json
 {
   "mcpServers": {
     "nexaa": {
-      "command": "node",
-      "args": ["/path/to/nexaa-mcp/dist/index.js"],
+      "type": "stdio",
+      "command": "/path/to/nexaa-mcp",
       "env": {
-        "NEXAA_USERNAME": "your-username",
-        "NEXAA_PASSWORD": "your-password"
+        "NEXAA_USERNAME": "your@email.com",
+        "NEXAA_PASSWORD": "yourpassword"
       }
     }
   }
 }
 ```
 
-Or via Docker:
+### HTTP/SSE transport
 
-```json
-{
-  "mcpServers": {
-    "nexaa": {
-      "command": "docker",
-      "args": [
-        "run",
-        "--rm",
-        "-i",
-        "-e",
-        "NEXAA_USERNAME=your-username",
-        "-e",
-        "NEXAA_PASSWORD=your-password",
-        "nexaa-mcp"
-      ]
-    }
-  }
-}
-```
-
-### Remote (HTTP)
-
-Use `claude mcp add-json` to register the hosted server:
+Set `MCP_HTTP_PORT` to run as an HTTP server instead of stdio. The server exposes SSE at `/sse` and the message endpoint at `/message`.
 
 ```bash
-claude mcp add-json nexaa '{
-  "type": "http",
-  "url": "https://your-host.example.com/mcp",
-  "headers": {
-    "Authorization": "Bearer your-secret-token"
-  }
-}'
+MCP_HTTP_PORT=8080 MCP_HTTP_TOKEN=secret ./nexaa-mcp
 ```
 
-Or add it directly to `~/.claude.json` / `.mcp.json`:
+Connect a client to `http://localhost:8080/sse` with `Authorization: Bearer secret`.
 
-```json
-{
-  "mcpServers": {
-    "nexaa": {
-      "type": "http",
-      "url": "https://your-host.example.com/mcp",
-      "headers": {
-        "Authorization": "Bearer your-secret-token"
-      }
-    }
-  }
-}
-```
+## Available tools
 
-To generate a secure token:
+### Namespaces
+| Tool | Description |
+|---|---|
+| `nexaa_namespace_list` | List all namespaces |
+| `nexaa_namespace_get` | Get a namespace by name |
+| `nexaa_namespace_create` | Create a namespace |
+| `nexaa_namespace_delete` | Delete a namespace |
 
-```bash
-openssl rand -base64 32
-```
+### Containers
+| Tool | Description |
+|---|---|
+| `nexaa_container_list_plans` | List available resource plans (CPU/RAM) |
+| `nexaa_container_list` | List containers in a namespace |
+| `nexaa_container_get` | Get a container by name |
+| `nexaa_container_create` | Create a container |
+| `nexaa_container_modify` | Modify a container |
+| `nexaa_container_delete` | Delete a container |
+| `nexaa_container_logs` | Fetch logs for a container replica |
 
-## Development
+### Container Jobs
+| Tool | Description |
+|---|---|
+| `nexaa_container_job_list` | List container jobs in a namespace |
+| `nexaa_container_job_get` | Get a container job by name |
+| `nexaa_container_job_create` | Create a scheduled container job |
+| `nexaa_container_job_modify` | Modify a container job |
+| `nexaa_container_job_delete` | Delete a container job |
 
-The project uses a two-layer structure:
+### Volumes
+| Tool | Description |
+|---|---|
+| `nexaa_volume_list` | List volumes in a namespace |
+| `nexaa_volume_create` | Create a persistent volume |
+| `nexaa_volume_increase` | Increase volume size |
+| `nexaa_volume_delete` | Delete a volume |
 
-- `src/tools/{resource}.ts` — MCP tool definitions with Zod input schemas
-- `src/queries/{resource}.graphql` — GraphQL queries and mutations
+### Private Registries
+| Tool | Description |
+|---|---|
+| `nexaa_registry_list` | List registry connections in a namespace |
+| `nexaa_registry_create` | Add a private registry connection |
+| `nexaa_registry_delete` | Remove a registry connection |
 
-Types are generated from the schema and queries by running:
+### Database Clusters
+| Tool | Description |
+|---|---|
+| `nexaa_db_cluster_list` | List all database clusters |
+| `nexaa_db_cluster_get` | Get a cluster by name and namespace |
+| `nexaa_db_cluster_create` | Create a database cluster |
+| `nexaa_db_cluster_modify` | Modify a database cluster |
+| `nexaa_db_cluster_delete` | Delete a database cluster |
+| `nexaa_db_cluster_list_plans` | List available cluster plans |
+| `nexaa_db_cluster_list_versions` | List supported engine versions |
+| `nexaa_db_user_get_credentials` | Get the DSN for a database user |
 
-```bash
-npm run codegen
-```
+### Databases
+| Tool | Description |
+|---|---|
+| `nexaa_db_create` | Add a database to a cluster |
+| `nexaa_db_delete` | Remove a database from a cluster |
 
-To add a new resource, create `src/queries/{resource}.graphql`, run codegen, create `src/tools/{resource}.ts`, and register the tools in `src/index.ts`.
+### Database Users
+| Tool | Description |
+|---|---|
+| `nexaa_db_user_list` | List users of a cluster |
+| `nexaa_db_user_create` | Create a database user |
+| `nexaa_db_user_modify` | Modify a user's permissions |
+| `nexaa_db_user_delete` | Delete a database user |
+
+### Message Queues
+| Tool | Description |
+|---|---|
+| `nexaa_message_queue_list` | List all message queues |
+| `nexaa_message_queue_get` | Get a queue by name and namespace |
+| `nexaa_message_queue_create` | Create a message queue |
+| `nexaa_message_queue_modify` | Modify a queue's allowlist or external connection |
+| `nexaa_message_queue_delete` | Delete a message queue |
+| `nexaa_message_queue_list_plans` | List available queue plans |
+| `nexaa_message_queue_list_versions` | List supported engine versions |
+| `nexaa_message_queue_get_credentials` | Get credentials for a queue user |
+
+### Billing
+| Tool | Description |
+|---|---|
+| `nexaa_billing_get_financial_insights` | Get account credit and cost breakdown by namespace/resource |
+
+## License
+
+[MIT](LICENSE)

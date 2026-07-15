@@ -174,4 +174,8 @@ dist
 CLAUDE.md
 .mcp.json
 
+# Nexaa
+auth.json
+nexaa-mcp
+
 # End of https://www.toptal.com/developers/gitignore/api/node,macos
