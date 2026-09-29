@@ -121,10 +121,6 @@ export function registerDatabaseClusterTools(server: McpServer, client: GraphQLC
         }),
         databases: z.array(DatabaseInput).default([]),
         users: z.array(DatabaseUserInput).default([]),
-        advisor: z
-          .object({ enabled: z.boolean() })
-          .optional()
-          .describe('Enable database advisor (missing index suggestions)'),
         externalConnection: ExternalConnection.optional(),
       },
     },
@@ -155,7 +151,6 @@ export function registerDatabaseClusterTools(server: McpServer, client: GraphQLC
         plan: z.string().optional(),
         databases: z.array(DatabaseInput).optional(),
         users: z.array(DatabaseUserInput).optional(),
-        advisor: z.object({ enabled: z.boolean() }).optional(),
         externalConnection: ExternalConnection.optional(),
       },
     },

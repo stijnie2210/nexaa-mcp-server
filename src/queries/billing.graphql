@@ -4,6 +4,7 @@ query GetFinancialInsights($startDate: DateTime, $endDate: DateTime) {
       amount
       currency
     }
+    hasDedicatedIp
     priceBreakdown(startDate: $startDate, endDate: $endDate) {
       startDate
       endDate

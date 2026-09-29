@@ -11,7 +11,7 @@ export function registerBillingTools(server: McpServer, client: GraphQLClient): 
     'nexaa_billing_get_financial_insights',
     {
       description:
-        'Get billing information for your Nexaa account. Returns the available account credit/balance and a cost breakdown over a date range, including per-namespace and per-resource details. Use this tool when the user asks about their credits, balance, remaining budget, or spending. All price amounts are in cents — divide by 100 to convert to the currency unit (e.g. EUR).',
+        'Get billing information for your Nexaa account. Returns the available account credit/balance, whether the account has a dedicated IP, and a cost breakdown over a date range, including per-namespace and per-resource details. Use this tool when the user asks about their credits, balance, remaining budget, or spending. All price amounts are in cents — divide by 100 to convert to the currency unit (e.g. EUR).',
       inputSchema: {
         startDate: z
           .string()
@@ -35,7 +35,11 @@ export function registerBillingTools(server: McpServer, client: GraphQLClient): 
           {
             type: 'text',
             text: JSON.stringify(
-              { credit: data.customer?.credit, priceBreakdown: data.customer?.priceBreakdown },
+              {
+                credit: data.customer?.credit,
+                hasDedicatedIp: data.customer?.hasDedicatedIp,
+                priceBreakdown: data.customer?.priceBreakdown,
+              },
               null,
               2,
             ),

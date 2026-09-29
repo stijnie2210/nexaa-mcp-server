@@ -1,6 +1,7 @@
 fragment MqExternalConnectionResult on ExternalConnection {
   ipv4
   ipv6
+  type
   ports {
     allowList
     externalPort

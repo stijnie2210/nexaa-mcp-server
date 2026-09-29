@@ -14,10 +14,13 @@ type Address {
 }
 
 input AllowListInput {
-  "IP address or a CIDR including the subnet"
+  """
+  IP address or a CIDR including the subnet
+  """
   ip: String!
 
-  ""
+  """
+  """
   state: State! = PRESENT
 }
 
@@ -64,13 +67,13 @@ type AutoScalingTrigger {
 }
 
 input AutoScalingTriggerInput {
-  type: AutoScalingType!
   threshold: Int!
+  type: AutoScalingType!
 }
 
 enum AutoScalingType {
-  MEMORY
   CPU
+  MEMORY
 }
 
 type CloudDatabase {
@@ -86,19 +89,6 @@ type CloudDatabase {
   username: String!
   version: DatabaseVersion!
   whitelist: [String!]!
-}
-
-"""
-Enable this feature to get recommendations on how to improve your database usage.
-
-The tool will be providing you settings on a cluster level to tune your database, provide recommendations for
-missing indexes and more.
-
-Database clusters will be analyzed once a day.
-"""
-input CloudDatabaseAdvisorInput {
-  "Set this field to `true` to enable recommendations on how to improve your database usage."
-  enabled: Boolean! = false
 }
 
 type CloudDatabaseAdvisory implements CloudDatabaseAdvisoryInterface {
@@ -120,32 +110,11 @@ type CloudDatabaseAdvisoryMissingIndex implements CloudDatabaseAdvisoryInterface
   message: String!
 }
 
-enum CloudDatabaseAdvisoryType {
-  MissingIndex
-  SettingSuggestion
-}
-
 type CloudDatabaseCluster {
   adminUser: DatabaseUser
-
-  """
-  Cost: complexity = 10, multipliers = [type], defaultMultiplier = null
-  """
-  advisories(type: CloudDatabaseAdvisoryType = null): [CloudDatabaseAdvisoryInterface!]!
-
   createdAt: DateTime!
   databases: [Database!]!
   externalConnection: ExternalConnection
-
-  """
-  Returns the features available on a cluster.
-  Features are extra functionality or capabilities for database clusters.
-  They are opt-in and provide extra services for your database.
-
-  Cost: complexity = 10, multipliers = [], defaultMultiplier = null
-  """
-  features: [CloudDatabaseClusterFeature!]!
-
   hostname: String!
   id: String!
   locked: Boolean!
@@ -170,44 +139,52 @@ A database cluster is accessible from within the namespace your created it in.
 There is no limit on the number of users, or database.
 """
 input CloudDatabaseClusterCreateInput {
-  ""
-  name: String!
-
-  ""
-  namespace: String!
-
-  ""
-  spec: CloudDatabaseClusterSpecInput!
-
-  ""
-  plan: String!
-
-  ""
+  """
+  """
   databases: [DatabaseInput!] = null
 
-  ""
-  users: [DatabaseUserInput!] = null
-
-  ""
-  advisor: CloudDatabaseAdvisorInput = null
-
-  ""
+  """
+  """
   externalConnection: ExternalConnectionInput = null
+
+  """
+  """
+  name: String!
+
+  """
+  """
+  namespace: String!
+
+  """
+  """
+  plan: String!
+
+  """
+  """
+  spec: CloudDatabaseClusterSpecInput!
+
+  """
+  """
+  users: [DatabaseUserInput!] = null
 }
 
 input CloudDatabaseClusterDatabaseCreateInput {
-  ""
+  """
+  """
   cluster: CloudDatabaseClusterResourceInput!
 
-  ""
+  """
+  """
   database: DatabaseInput!
 }
 
 input CloudDatabaseClusterDatabaseResourceInput {
-  ""
+  """
+  """
   cluster: CloudDatabaseClusterResourceInput!
 
-  ""
+  """
+  """
   name: String!
 }
 
@@ -228,62 +205,74 @@ A database cluster is accessible from within the namespace your created it in.
 There is no limit on the number of users, or database.
 """
 input CloudDatabaseClusterModifyInput {
-  ""
-  name: String!
-
-  ""
-  namespace: String!
-
-  ""
+  """
+  """
   databases: [DatabaseInput!]
 
-  ""
-  users: [DatabaseUserInput!]
-
-  ""
-  advisor: CloudDatabaseAdvisorInput
-
-  ""
+  """
+  """
   externalConnection: ExternalConnectionInput
+
+  """
+  """
+  name: String!
+
+  """
+  """
+  namespace: String!
+
+  """
+  """
+  users: [DatabaseUserInput!]
 }
 
 input CloudDatabaseClusterResourceInput {
-  ""
+  """
+  """
   name: String!
 
-  ""
+  """
+  """
   namespace: String!
 }
 
 input CloudDatabaseClusterSpecInput {
-  ""
+  """
+  """
   type: String!
 
-  ""
+  """
+  """
   version: String!
 }
 
 input CloudDatabaseClusterUserCreateInput {
-  ""
+  """
+  """
   cluster: CloudDatabaseClusterResourceInput!
 
-  ""
+  """
+  """
   user: DatabaseUserInput!
 }
 
 input CloudDatabaseClusterUserModifyInput {
-  ""
+  """
+  """
   cluster: CloudDatabaseClusterResourceInput
 
-  ""
+  """
+  """
   user: DatabaseUserInput
 }
 
 input CloudDatabaseClusterUserResourceInput {
-  ""
+  """
+  """
   cluster: CloudDatabaseClusterResourceInput!
 
-  ""
+  """
+  """
   name: String!
 }
 
@@ -319,62 +308,6 @@ type Container {
 }
 
 input ContainerCreateInput {
-  ""
-  name: String!
-
-  ""
-  namespace: String!
-
-  ""
-  resources: ContainerResources = null
-
-  ""
-  registry: String = null
-
-  ""
-  image: String = null
-
-  "Environment variables to be set in the job."
-  environmentVariables: [EnvironmentVariableInput!] = []
-
-  ""
-  mounts: [MountInput!]
-
-  ""
-  ports: [String!]
-
-  ""
-  ingresses: [IngressInput!]! = []
-
-  ""
-  scaling: ScalingInput = null
-
-  """
-  Health check performed to check the status of the container.
-  Health checks are directly performed on the container so your application must expose
-  the port. Port mappings specified in the ports field are not used by the health check.
-
-  When you want to disable the health check you must send us a null value. To leave the
-  current health check unchanged you can omit this field.
-  """
-  healthCheck: HealthCheckInput = null
-
-  ""
-  type: ContainerType! = DEFAULT
-
-  """
-  Entrypoint of the container.
-  This field will overwrite the default entrypoint of the image. When the field is omitted, the default entrypoint of the image will be used.
-
-  Null will reset the command to the default.
-
-  Entry point is the first command executed when the container starts. It will receive the command as arguments.
-  For example when the entrypoint is `python`, the command `app.py` will be executed as `python app.py`.
-
-  This field is defined in docker exec format. https://docs.docker.com/reference/dockerfile/#shell-and-exec-form
-  """
-  entrypoint: [String!]
-
   """
   Command to run.
   This is the command executed at the given schedule.
@@ -391,15 +324,86 @@ input ContainerCreateInput {
   """
   command: [String!]
 
-  ""
+  """
+  Entrypoint of the container.
+  This field will overwrite the default entrypoint of the image. When the field is omitted, the default entrypoint of the image will be used.
+
+  Null will reset the command to the default.
+
+  Entry point is the first command executed when the container starts. It will receive the command as arguments.
+  For example when the entrypoint is `python`, the command `app.py` will be executed as `python app.py`.
+
+  This field is defined in docker exec format. https://docs.docker.com/reference/dockerfile/#shell-and-exec-form
+  """
+  entrypoint: [String!]
+
+  """
+  Environment variables to be set in the job.
+  """
+  environmentVariables: [EnvironmentVariableInput!] = []
+
+  """
+  """
   externalConnection: ExternalConnectionInput = null
+
+  """
+  Health check performed to check the status of the container.
+  Health checks are directly performed on the container so your application must expose
+  the port. Port mappings specified in the ports field are not used by the health check.
+
+  When you want to disable the health check you must send us a null value. To leave the
+  current health check unchanged you can omit this field.
+  """
+  healthCheck: HealthCheckInput = null
+
+  """
+  """
+  image: String = null
+
+  """
+  """
+  ingresses: [IngressInput!] = null
+
+  """
+  """
+  mounts: [MountInput!]
+
+  """
+  """
+  name: String!
+
+  """
+  """
+  namespace: String!
+
+  """
+  """
+  ports: [String!]
+
+  """
+  """
+  registry: String = null
+
+  """
+  """
+  resources: ContainerResources = null
+
+  """
+  """
+  scaling: ScalingInput = null
+
+  """
+  """
+  type: ContainerType! = DEFAULT
 }
 
 input ContainerDeleteInput {
-  ""
+  """
+  """
   name: String!
 
-  ""
+  """
+  """
   namespace: String!
 }
 
@@ -430,34 +434,6 @@ type ContainerJob {
 }
 
 input ContainerJobCreateInput {
-  ""
-  name: String!
-
-  ""
-  namespace: String!
-
-  ""
-  resources: ContainerResources!
-
-  ""
-  registry: String = null
-
-  ""
-  image: String!
-
-  """
-  Entrypoint of the container.
-  This field will overwrite the default entrypoint of the image. When the field is omitted, the default entrypoint of the image will be used.
-
-  Null will reset the command to the default.
-
-  Entry point is the first command executed when the container starts. It will receive the command as arguments.
-  For example when the entrypoint is `python`, the command `app.py` will be executed as `python app.py`.
-
-  This field is defined in docker exec format. https://docs.docker.com/reference/dockerfile/#shell-and-exec-form
-  """
-  entrypoint: [String!]
-
   """
   Command to run.
   This is the command executed at the given schedule.
@@ -481,37 +457,6 @@ input ContainerJobCreateInput {
   enabled: Boolean! = true
 
   """
-  Cron notation to schedule jobs.
-  Format is equal to regular cron notation.
-  For example, to run a job every day at 4am, use `0 4 * * *`.
-  You can use https://crontab.guru/ to help you build your cron expressions.
-  """
-  schedule: String!
-
-  "Environment variables to be set in the job."
-  environmentVariables: [EnvironmentVariableInput!] = []
-
-  ""
-  mounts: [MountInput!]
-}
-
-input ContainerJobModifyInput {
-  ""
-  name: String!
-
-  ""
-  namespace: String!
-
-  ""
-  resources: ContainerResources
-
-  ""
-  registry: String
-
-  ""
-  image: String
-
-  """
   Entrypoint of the container.
   This field will overwrite the default entrypoint of the image. When the field is omitted, the default entrypoint of the image will be used.
 
@@ -524,6 +469,45 @@ input ContainerJobModifyInput {
   """
   entrypoint: [String!]
 
+  """
+  Environment variables to be set in the job.
+  """
+  environmentVariables: [EnvironmentVariableInput!] = []
+
+  """
+  """
+  image: String!
+
+  """
+  """
+  mounts: [MountInput!]
+
+  """
+  """
+  name: String!
+
+  """
+  """
+  namespace: String!
+
+  """
+  """
+  registry: String = null
+
+  """
+  """
+  resources: ContainerResources!
+
+  """
+  Cron notation to schedule jobs.
+  Format is equal to regular cron notation.
+  For example, to run a job every day at 4am, use `0 4 * * *`.
+  You can use https://crontab.guru/ to help you build your cron expressions.
+  """
+  schedule: String!
+}
+
+input ContainerJobModifyInput {
   """
   Command to run.
   This is the command executed at the given schedule.
@@ -547,18 +531,54 @@ input ContainerJobModifyInput {
   enabled: Boolean
 
   """
+  Entrypoint of the container.
+  This field will overwrite the default entrypoint of the image. When the field is omitted, the default entrypoint of the image will be used.
+
+  Null will reset the command to the default.
+
+  Entry point is the first command executed when the container starts. It will receive the command as arguments.
+  For example when the entrypoint is `python`, the command `app.py` will be executed as `python app.py`.
+
+  This field is defined in docker exec format. https://docs.docker.com/reference/dockerfile/#shell-and-exec-form
+  """
+  entrypoint: [String!]
+
+  """
+  Environment variables to be set in the job.
+  """
+  environmentVariables: [EnvironmentVariableInput!]
+
+  """
+  """
+  image: String
+
+  """
+  """
+  mounts: [MountInput!]
+
+  """
+  """
+  name: String!
+
+  """
+  """
+  namespace: String!
+
+  """
+  """
+  registry: String
+
+  """
+  """
+  resources: ContainerResources
+
+  """
   Cron notation to schedule jobs.
   Format is equal to regular cron notation.
   For example, to run a job every day at 4am, use `0 4 * * *`.
   You can use https://crontab.guru/ to help you build your cron expressions.
   """
   schedule: String
-
-  "Environment variables to be set in the job."
-  environmentVariables: [EnvironmentVariableInput!]
-
-  ""
-  mounts: [MountInput!]
 }
 
 type ContainerJobPriceBreakdown implements ResourcePriceBreakdownInterface {
@@ -586,59 +606,6 @@ type ContainerJobRunPriceBreakdown {
 }
 
 input ContainerModifyInput {
-  ""
-  name: String!
-
-  ""
-  namespace: String!
-
-  ""
-  resources: ContainerResources
-
-  ""
-  registry: String
-
-  ""
-  image: String
-
-  "Environment variables to be set in the job."
-  environmentVariables: [EnvironmentVariableInput!]
-
-  ""
-  mounts: [MountInput!]
-
-  ""
-  ports: [String!]
-
-  ""
-  ingresses: [IngressInput!]
-
-  ""
-  scaling: ScalingInput
-
-  """
-  Health check performed to check the status of the container.
-  Health checks are directly performed on the container so your application must expose
-  the port. Port mappings specified in the ports field are not used by the health check.
-
-  When you want to disable the health check you must send us a null value. To leave the
-  current health check unchanged you can omit this field.
-  """
-  healthCheck: HealthCheckInput
-
-  """
-  Entrypoint of the container.
-  This field will overwrite the default entrypoint of the image. When the field is omitted, the default entrypoint of the image will be used.
-
-  Null will reset the command to the default.
-
-  Entry point is the first command executed when the container starts. It will receive the command as arguments.
-  For example when the entrypoint is `python`, the command `app.py` will be executed as `python app.py`.
-
-  This field is defined in docker exec format. https://docs.docker.com/reference/dockerfile/#shell-and-exec-form
-  """
-  entrypoint: [String!]
-
   """
   Command to run.
   This is the command executed at the given schedule.
@@ -655,8 +622,73 @@ input ContainerModifyInput {
   """
   command: [String!]
 
-  ""
+  """
+  Entrypoint of the container.
+  This field will overwrite the default entrypoint of the image. When the field is omitted, the default entrypoint of the image will be used.
+
+  Null will reset the command to the default.
+
+  Entry point is the first command executed when the container starts. It will receive the command as arguments.
+  For example when the entrypoint is `python`, the command `app.py` will be executed as `python app.py`.
+
+  This field is defined in docker exec format. https://docs.docker.com/reference/dockerfile/#shell-and-exec-form
+  """
+  entrypoint: [String!]
+
+  """
+  Environment variables to be set in the job.
+  """
+  environmentVariables: [EnvironmentVariableInput!]
+
+  """
+  """
   externalConnection: ExternalConnectionInput
+
+  """
+  Health check performed to check the status of the container.
+  Health checks are directly performed on the container so your application must expose
+  the port. Port mappings specified in the ports field are not used by the health check.
+
+  When you want to disable the health check you must send us a null value. To leave the
+  current health check unchanged you can omit this field.
+  """
+  healthCheck: HealthCheckInput
+
+  """
+  """
+  image: String
+
+  """
+  """
+  ingresses: [IngressInput!]
+
+  """
+  """
+  mounts: [MountInput!]
+
+  """
+  """
+  name: String!
+
+  """
+  """
+  namespace: String!
+
+  """
+  """
+  ports: [String!]
+
+  """
+  """
+  registry: String
+
+  """
+  """
+  resources: ContainerResources
+
+  """
+  """
+  scaling: ScalingInput
 }
 
 type ContainerPriceBreakdown implements ResourcePriceBreakdownInterface {
@@ -675,10 +707,12 @@ type ContainerReplicaPriceBreakdown {
 }
 
 input ContainerResourceInput {
-  ""
+  """
+  """
   name: String!
 
-  ""
+  """
+  """
   namespace: String!
 }
 
@@ -805,27 +839,25 @@ enum ContainerResources {
 }
 
 enum ContainerType {
-  STARTER
   DEFAULT
+  STARTER
 }
 
 enum CpuUnit {
-  mCPU
   CPU
+  mCPU
 }
 
 type Customer {
   billingPeriod: Int! @deprecated(reason: "this field will be removed in the future")
   credit: Price!
+  hasDedicatedIp: Boolean!
   hasPaymentDetails: Boolean!
   id: ID!
   name: String! @deprecated(reason: "this field will be removed in the future")
 
-  """
-  Cost: complexity = 1000, multipliers = [], defaultMultiplier = null
-  """
-  priceBreakdown(startDate: DateTime = null, endDate: DateTime = null): CustomerPriceBreakdown!
-
+  "\nCost: complexity = 1000, multipliers = [], defaultMultiplier = null"
+  priceBreakdown(endDate: DateTime = null, startDate: DateTime = null): CustomerPriceBreakdown!
   recurringPayment: Boolean! @deprecated(reason: "this field will be removed in the future")
   suspendedReason: SuspendedReason
   termOfPayment: Int! @deprecated(reason: "this field will be removed in the future")
@@ -835,18 +867,18 @@ type CustomerPriceBreakdown {
   endDate: DateTime!
   resourceSum(resourceType: PriceBreakdownResourceType = ALL): PriceBreakdownResourceSum!
 
-  "Returns the price breakdown of resources used during the billing period."
+  """
+  Returns the price breakdown of resources used during the billing period.
+  """
   resources(
-    resourceType: PriceBreakdownResourceType = ALL
     name: String = null
+    resourceType: PriceBreakdownResourceType = ALL
   ): [UnionIpAddressPriceBreakdownNamespacePriceBreakdown!]!
-
   startDate: DateTime!
 }
 
 type Database {
   description: String
-  extensions: [Extension!]!
   name: String!
   status: String!
 }
@@ -858,14 +890,17 @@ type DatabaseClusterPriceBreakdown implements ResourcePriceBreakdownInterface {
 }
 
 input DatabaseInput {
-  ""
+  """
+  """
+  description: String = null
+
+  """
+  """
   name: String!
 
-  ""
+  """
+  """
   state: State! = PRESENT
-
-  ""
-  description: String = null
 }
 
 enum DatabasePermission {
@@ -883,17 +918,21 @@ type DatabaseUser {
 }
 
 input DatabaseUserInput {
-  ""
+  """
+  """
   name: String!
 
-  ""
+  """
+  """
   password: String = null
 
-  ""
-  state: State! = PRESENT
-
-  ""
+  """
+  """
   permissions: [DatabaseUserPermissionInput!]!
+
+  """
+  """
+  state: State! = PRESENT
 }
 
 type DatabaseUserPermission {
@@ -902,13 +941,16 @@ type DatabaseUserPermission {
 }
 
 input DatabaseUserPermissionInput {
-  ""
+  """
+  """
   databaseName: String!
 
-  ""
+  """
+  """
   permission: DatabasePermission!
 
-  ""
+  """
+  """
   state: State! = PRESENT
 }
 
@@ -919,19 +961,24 @@ type DatabaseVersion {
   type: String!
 }
 
-"The `DateTime` scalar type represents time data, represented as an ISO-8601 encoded UTC date string."
+"""
+The `DateTime` scalar type represents time data, represented as an ISO-8601 encoded UTC date string.
+"""
 scalar DateTime
 
 input DeleteNamespaceInput {
-  ""
+  """
+  """
   name: String!
 }
 
 input DeleteRegistryConnectionInput {
-  ""
+  """
+  """
   name: String!
 
-  ""
+  """
+  """
   namespace: String!
 }
 
@@ -951,17 +998,21 @@ type EnvironmentVariable {
 }
 
 input EnvironmentVariableInput {
-  ""
+  """
+  """
   name: String!
 
-  ""
-  value: String!
-
-  ""
+  """
+  """
   secret: Boolean! = false
 
-  ""
+  """
+  """
   state: State! = PRESENT
+
+  """
+  """
+  value: String!
 }
 
 type Extension {
@@ -972,17 +1023,21 @@ type ExternalConnection {
   ipv4: String!
   ipv6: String!
   ports: [ExternalConnectionPort!]!
+  type: String!
 }
 
 input ExternalConnectionInput {
-  ""
+  """
+  """
+  ports: [ExternalConnectionPortInput!]! = []
+
+  """
+  """
   sharedIp: Boolean! = true
 
-  ""
+  """
+  """
   state: State! = PRESENT
-
-  ""
-  ports: [ExternalConnectionPortInput!]! = []
 }
 
 type ExternalConnectionPort {
@@ -993,7 +1048,12 @@ type ExternalConnectionPort {
 }
 
 input ExternalConnectionPortInput {
-  ""
+  """
+  """
+  allowList: [AllowListInput!]! = []
+
+  """
+  """
   externalPort: Int = null
 
   """
@@ -1010,11 +1070,9 @@ input ExternalConnectionPortInput {
   """
   protocol: Protocol! = TCP
 
-  ""
+  """
+  """
   state: State! = PRESENT
-
-  ""
-  allowList: [AllowListInput!]! = []
 }
 
 type HealthCheck {
@@ -1023,8 +1081,8 @@ type HealthCheck {
 }
 
 input HealthCheckInput {
-  port: Int!
   path: String!
+  port: Int!
 }
 
 type Ingress {
@@ -1040,20 +1098,25 @@ type Ingress {
 }
 
 input IngressInput {
-  ""
-  port: Int!
-
-  ""
-  enableTLS: Boolean! = false
-
-  ""
-  whitelist: [String!] = []
-
-  ""
+  """
+  """
   domainName: String = null
 
-  ""
+  """
+  """
+  enableTLS: Boolean! = false
+
+  """
+  """
+  port: Int!
+
+  """
+  """
   state: State! = PRESENT
+
+  """
+  """
+  whitelist: [String!] = []
 }
 
 type IpAddressPriceBreakdown implements ResourcePriceBreakdownInterface {
@@ -1068,7 +1131,8 @@ type Location {
 }
 
 input ManualScalingInput {
-  ""
+  """
+  """
   replicas: Int!
 }
 
@@ -1087,23 +1151,29 @@ type MessageQueue {
 }
 
 input MessageQueueCreateInput {
-  ""
+  """
+  """
+  allowList: [AllowListInput!] = null
+
+  """
+  """
+  externalConnection: ExternalConnectionInput = null
+
+  """
+  """
   name: String!
 
-  ""
+  """
+  """
   namespace: String!
 
-  ""
+  """
+  """
   plan: String!
 
-  ""
+  """
+  """
   spec: MessageQueueSpecInput!
-
-  ""
-  allowList: [AllowListInput!]!
-
-  ""
-  externalConnection: ExternalConnectionInput = null
 }
 
 type MessageQueueIngress {
@@ -1115,17 +1185,21 @@ type MessageQueueIngress {
 }
 
 input MessageQueueModifyInput {
-  ""
-  name: String!
-
-  ""
-  namespace: String!
-
-  ""
+  """
+  """
   allowList: [AllowListInput!]
 
-  ""
+  """
+  """
   externalConnection: ExternalConnectionInput
+
+  """
+  """
+  name: String!
+
+  """
+  """
+  namespace: String!
 }
 
 type MessageQueuePlan {
@@ -1153,10 +1227,12 @@ type MessageQueuePriceBreakdown implements ResourcePriceBreakdownInterface {
 }
 
 input MessageQueueResourceInput {
-  ""
+  """
+  """
   name: String!
 
-  ""
+  """
+  """
   namespace: String!
 }
 
@@ -1167,10 +1243,12 @@ type MessageQueueSpec {
 }
 
 input MessageQueueSpecInput {
-  ""
+  """
+  """
   type: String!
 
-  ""
+  """
+  """
   version: String!
 }
 
@@ -1188,149 +1266,122 @@ type Mount {
 }
 
 input MountInput {
-  "Path to mount the volume in the container."
+  """
+  Path to mount the volume in the container.
+  """
   path: String!
-
-  ""
-  volume: MountVolumeInput!
 
   """
   Set the expected state of this mount.
   When the state is set to `ABSENT`, the mount will be removed, the volume will be kept.
   """
   state: State! = PRESENT
+
+  """
+  """
+  volume: MountVolumeInput!
 }
 
 input MountVolumeInput {
-  "Create the volume if it does not exist."
+  """
+  Create the volume if it does not exist.
+  """
   autoCreate: Boolean! = true
 
-  "Increase the size of the volume if it already exists."
+  """
+  Increase the size of the volume if it already exists.
+  """
   increase: Boolean! = false
 
-  "Name of the volume"
+  """
+  Name of the volume
+  """
   name: String!
 
-  "Size of the volume in GB"
+  """
+  Size of the volume in GB
+  """
   size: Int = null
 }
 
 type Mutation {
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   addPrivateRegistry(
-    namespaceId: Int!
     name: String!
+    namespaceId: Int!
+    password: String!
     source: String!
     username: String!
-    password: String!
     verify: Boolean = true
   ): Boolean! @deprecated(reason: "use `registryConnectionCreate` mutation")
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   cloudDatabaseClusterCreate(
     cloudDatabaseClusterInput: CloudDatabaseClusterCreateInput
   ): CloudDatabaseCluster!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   cloudDatabaseClusterDatabaseCreate(
     databaseInput: CloudDatabaseClusterDatabaseCreateInput
   ): Database!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   cloudDatabaseClusterDatabaseDelete(
     databaseInput: CloudDatabaseClusterDatabaseResourceInput!
   ): Boolean!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   cloudDatabaseClusterDelete(cloudDatabase: CloudDatabaseClusterResourceInput!): Boolean!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   cloudDatabaseClusterModify(
     cloudDatabaseClusterInput: CloudDatabaseClusterModifyInput
   ): CloudDatabaseCluster!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   cloudDatabaseClusterUserCreate(userInput: CloudDatabaseClusterUserCreateInput): DatabaseUser!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   cloudDatabaseClusterUserDelete(userInput: CloudDatabaseClusterUserResourceInput!): Boolean!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   cloudDatabaseClusterUserModify(userInput: CloudDatabaseClusterUserModifyInput): DatabaseUser!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   containerCreate(containerInput: ContainerCreateInput): Container!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   containerDelete(container: ContainerDeleteInput!): Boolean!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   containerJobCreate(scheduledJob: ContainerJobCreateInput!): ContainerJob!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   containerJobDelete(scheduledJob: ResourceNameInput!): Boolean!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   containerJobModify(scheduledJob: ContainerJobModifyInput): ContainerJob!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   containerModify(containerInput: ContainerModifyInput): Container!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   createNamespace(
-    name: String!
     customerId: Int = null
     description: String = null
+    name: String!
     pricingPlanId: Int = 2
     resourceSpecificationId: Int = null
   ): Boolean! @deprecated(reason: "use `namespaceCreate` mutation")
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
-  createVolume(namespaceId: Int!, name: String!, size: Int!): Volume
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
+  createVolume(name: String!, namespaceId: Int!, size: Int!): Volume
     @deprecated(reason: "use `volumeCreate` mutation")
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   deleteNamespace(id: Int!): Boolean! @deprecated(reason: "use `namespaceDelete` mutation")
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   deletePrivateRegistry(privateRegistryId: Int!): Boolean!
     @deprecated(reason: "use `registryConnectionDelete` mutation instead")
 
@@ -1353,69 +1404,47 @@ type Mutation {
 
   Cost: complexity = 100, multipliers = [], defaultMultiplier = null
   """
-  increaseVolume(namespaceId: NamespaceId!, name: String!, size: Int!): Volume!
+  increaseVolume(name: String!, namespaceId: NamespaceId!, size: Int!): Volume!
     @deprecated(reason: "use `volumeIncrease` mutation")
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   messageQueueCreate(messageQueue: MessageQueueCreateInput): MessageQueue!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   messageQueueDelete(messageQueue: MessageQueueResourceInput!): Boolean!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   messageQueueModify(messageQueue: MessageQueueModifyInput): MessageQueue!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   messageQueueUserModify(userInput: CloudDatabaseClusterUserModifyInput): MessageQueueUser!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   namespaceCreate(namespaceInput: NamespaceCreateInput!): Namespace!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   namespaceDelete(namespace: DeleteNamespaceInput!): Boolean!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   registryConnectionCreate(registryInput: RegistryCreateInput!): PrivateRegistry!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   registryConnectionDelete(registryConnection: DeleteRegistryConnectionInput!): Boolean!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   volumeCreate(volumeInput: VolumeCreateInput): Volume!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   volumeDelete(volume: VolumeResourceInput!): Boolean!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   volumeIncrease(volumeInput: VolumeModifyInput): Volume!
 }
 
 type Namespace {
   cloudDatabaseClusters: [CloudDatabaseCluster!]!
   containerJobs: [ContainerJob!]!
-  containers: [Container!]
+  containers: [Container!]!
   createdAt: DateTime!
   deletedAt: DateTime
   description: String!
@@ -1433,23 +1462,28 @@ type Namespace {
 }
 
 input NamespaceCreateInput {
-  ""
-  name: String!
-
-  ""
+  """
+  """
   description: String
+
+  """
+  """
+  name: String!
 }
 
-"The unique identifier of a cluster namespace, represented as an integer."
+"""
+The unique identifier of a cluster namespace, represented as an integer.
+"""
 scalar NamespaceId
 
 type NamespacePriceBreakdown implements ResourcePriceBreakdownInterface {
   name: String!
   price: Price!
 
-  "Returns the sum of the price per resource type."
+  """
+  Returns the sum of the price per resource type.
+  """
   resourceSum(resourceType: PriceBreakdownResourceType = ALL): PriceBreakdownResourceSum!
-
   resourceType: PriceBreakdownResourceType!
 
   """
@@ -1499,13 +1533,13 @@ type PriceBreakdownResourceSum {
 enum PriceBreakdownResourceType {
   ALL
   CONTAINER
-  STARTER_CONTAINER
   CONTAINER_JOB
-  VOLUME
   DATABASE_CLUSTER
-  MESSAGE_QUEUE
   IPADDRESS
+  MESSAGE_QUEUE
   NAMESPACE
+  STARTER_CONTAINER
+  VOLUME
 }
 
 type PricingPlan {
@@ -1538,165 +1572,117 @@ type Query {
   """
   account: Account
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   auditLogs(customerId: ID!, filter: AuditLogFilterInput = null): [AuditLog]!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   cloudDatabase(id: ID!): CloudDatabase
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   cloudDatabaseCluster(cloudDatabase: CloudDatabaseClusterResourceInput!): CloudDatabaseCluster!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   cloudDatabaseClusterPlans: [Plan!]!
 
-  """
-  Cost: complexity = 750, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 750, multipliers = [], defaultMultiplier = null"
   cloudDatabaseClusterUserCredentials(
     cloudDatabase: CloudDatabaseClusterResourceInput!
     username: String!
   ): DatabaseUser!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   cloudDatabaseClusterVersions: [Spec!]!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   cloudDatabaseClusters: [CloudDatabaseCluster!]!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   cloudDatabases: [CloudDatabase!]!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
-  container(id: ID = null, containerResourceInput: ContainerResourceInput = null): Container!
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
+  container(containerResourceInput: ContainerResourceInput = null, id: ID = null): Container!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
-  containerJob(namespace: String!, name: String!): ContainerJob!
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
+  containerJob(name: String!, namespace: String!): ContainerJob!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   customer: Customer
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   databaseVersions: [DatabaseVersion!]!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   locations: [Location!]!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   messageQueue(messageQueue: MessageQueueResourceInput!): MessageQueue!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   messageQueuePlans: [MessageQueuePlan!]!
 
-  """
-  Cost: complexity = 750, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 750, multipliers = [], defaultMultiplier = null"
   messageQueueUserCredentials(
     messageQueue: MessageQueueResourceInput!
     username: String!
   ): MessageQueueUser!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   messageQueueVersions: [MessageQueueSpec!]!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   messageQueues: [MessageQueue!]!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   namespace(id: ID = null, name: String = null): Namespace!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   namespaces: [Namespace!]!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   nodeType(id: String!): NodeType!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   nodeTypes(numberOfNodes: Int = null): [NodeType!]!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   pricingPlans: [PricingPlan!]!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
-  privateRegistries(namespaceId: ID = null, namespace: String = null): [PrivateRegistry!]!
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
+  privateRegistries(namespace: String = null, namespaceId: ID = null): [PrivateRegistry!]!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   resourceSpecifications(kind: String!): [ResourceSpecification!]!
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   volume(id: ID!): Volume
 
-  """
-  Cost: complexity = 100, multipliers = [], defaultMultiplier = null
-  """
+  "\nCost: complexity = 100, multipliers = [], defaultMultiplier = null"
   volumes(namespaceId: Int!): [Volume!]!
 }
 
 input RegistryCreateInput {
-  ""
-  namespace: String!
-
-  ""
+  """
+  """
   name: String!
 
-  ""
-  source: String!
+  """
+  """
+  namespace: String!
 
-  ""
-  username: String!
-
-  ""
+  """
+  """
   password: String!
 
-  ""
+  """
+  """
+  source: String!
+
+  """
+  """
+  username: String!
+
+  """
+  """
   verify: Boolean! = true
 }
 
@@ -1707,15 +1693,17 @@ type Replica {
 }
 
 input ReplicasInput {
-  minimum: Int!
   maximum: Int!
+  minimum: Int!
 }
 
 input ResourceNameInput {
-  ""
+  """
+  """
   name: String!
 
-  ""
+  """
+  """
   namespace: String!
 }
 
@@ -1757,35 +1745,37 @@ type StarterContainerPriceBreakdown implements ResourcePriceBreakdownInterface {
 }
 
 enum State {
-  PRESENT
   ABSENT
+  PRESENT
 }
 
 enum Status {
-  UNPROVISIONED
+  CREATED
   CREATE_REQUESTED
   CREATING
-  CREATED
-  UPDATING
-  UPDATED
-  ON_HOLD
-  FAILED
   DELETE_PENDING
   DELETE_REQUESTED
   DELETING
+  FAILED
+  ON_HOLD
+  UNPROVISIONED
+  UPDATED
+  UPDATING
 }
 
 type Subscription {
-  "A placeholder query used by thecodingmachine/graphqlite when there are no declared subscriptions."
+  """
+  A placeholder query used by thecodingmachine/graphqlite when there are no declared subscriptions.
+  """
   dummySubscription: String
 }
 
 enum SuspendedReason {
+  ABUSIVE_BEHAVIOUR
+  DEFAULT
   MALICIOUS_ACTIVITY
   PAYMENT_ISSUES
-  ABUSIVE_BEHAVIOUR
   SUPPORTING_PROHIBITED_CONTENT
-  DEFAULT
 }
 
 union UnionIpAddressPriceBreakdownNamespacePriceBreakdown =
@@ -1793,8 +1783,8 @@ union UnionIpAddressPriceBreakdownNamespacePriceBreakdown =
   | NamespacePriceBreakdown
 
 enum Unit {
-  MB
   GB
+  MB
   TB
 }
 
@@ -1811,24 +1801,30 @@ type Volume {
 }
 
 input VolumeCreateInput {
-  ""
+  """
+  """
   name: String!
 
-  ""
+  """
+  """
   namespace: String!
 
-  ""
+  """
+  """
   size: Int!
 }
 
 input VolumeModifyInput {
-  ""
+  """
+  """
   name: String!
 
-  ""
+  """
+  """
   namespace: String!
 
-  ""
+  """
+  """
   size: Int!
 }
 
@@ -1839,9 +1835,11 @@ type VolumePriceBreakdown implements ResourcePriceBreakdownInterface {
 }
 
 input VolumeResourceInput {
-  ""
+  """
+  """
   name: String!
 
-  ""
+  """
+  """
   namespace: String!
 }

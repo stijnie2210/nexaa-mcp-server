@@ -5,7 +5,7 @@ RUN     := docker run --rm \
              -w $(WORKDIR) \
              $(IMAGE)
 
-.PHONY: install build start dev codegen format format-check
+.PHONY: install build start dev codegen schema format format-check
 
 install:
 	$(RUN) npm ci
@@ -18,6 +18,9 @@ start:
 
 dev:
 	$(RUN) npm run dev
+
+schema:
+	$(RUN) npm run schema:fetch
 
 codegen:
 	$(RUN) npm run codegen

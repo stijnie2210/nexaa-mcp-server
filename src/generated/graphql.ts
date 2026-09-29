@@ -108,19 +108,6 @@ export type CloudDatabase = {
   whitelist: Array<Scalars['String']['output']>;
 };
 
-/**
- * Enable this feature to get recommendations on how to improve your database usage.
- *
- * The tool will be providing you settings on a cluster level to tune your database, provide recommendations for
- * missing indexes and more.
- *
- * Database clusters will be analyzed once a day.
- */
-export type CloudDatabaseAdvisorInput = {
-  /** Set this field to `true` to enable recommendations on how to improve your database usage. */
-  enabled?: Scalars['Boolean']['input'];
-};
-
 export type CloudDatabaseAdvisory = CloudDatabaseAdvisoryInterface & {
   createdAt: Scalars['String']['output'];
   identifier: Scalars['String']['output'];
@@ -140,23 +127,11 @@ export type CloudDatabaseAdvisoryMissingIndex = CloudDatabaseAdvisoryInterface &
   message: Scalars['String']['output'];
 };
 
-export type CloudDatabaseAdvisoryType = 'MissingIndex' | 'SettingSuggestion';
-
 export type CloudDatabaseCluster = {
   adminUser?: Maybe<DatabaseUser>;
-  /** Cost: complexity = 10, multipliers = [type], defaultMultiplier = null */
-  advisories: Array<CloudDatabaseAdvisoryInterface>;
   createdAt: Scalars['DateTime']['output'];
   databases: Array<Database>;
   externalConnection?: Maybe<ExternalConnection>;
-  /**
-   * Returns the features available on a cluster.
-   * Features are extra functionality or capabilities for database clusters.
-   * They are opt-in and provide extra services for your database.
-   *
-   * Cost: complexity = 10, multipliers = [], defaultMultiplier = null
-   */
-  features: Array<CloudDatabaseClusterFeature>;
   hostname: Scalars['String']['output'];
   id: Scalars['String']['output'];
   locked: Scalars['Boolean']['output'];
@@ -167,10 +142,6 @@ export type CloudDatabaseCluster = {
   spec: Spec;
   state: Scalars['String']['output'];
   users: Array<DatabaseUser>;
-};
-
-export type CloudDatabaseClusterAdvisoriesArgs = {
-  type?: InputMaybe<CloudDatabaseAdvisoryType>;
 };
 
 export type CloudDatabaseClusterAdvisor = CloudDatabaseClusterFeature & {
@@ -185,7 +156,6 @@ export type CloudDatabaseClusterAdvisor = CloudDatabaseClusterFeature & {
  * There is no limit on the number of users, or database.
  */
 export type CloudDatabaseClusterCreateInput = {
-  advisor?: InputMaybe<CloudDatabaseAdvisorInput>;
   databases?: InputMaybe<Array<DatabaseInput>>;
   externalConnection?: InputMaybe<ExternalConnectionInput>;
   name: Scalars['String']['input'];
@@ -222,7 +192,6 @@ export type CloudDatabaseClusterFeatureImpl = CloudDatabaseClusterFeature & {
  * There is no limit on the number of users, or database.
  */
 export type CloudDatabaseClusterModifyInput = {
-  advisor?: InputMaybe<CloudDatabaseAdvisorInput>;
   databases?: InputMaybe<Array<DatabaseInput>>;
   externalConnection?: InputMaybe<ExternalConnectionInput>;
   name: Scalars['String']['input'];
@@ -329,7 +298,7 @@ export type ContainerCreateInput = {
    */
   healthCheck?: InputMaybe<HealthCheckInput>;
   image?: InputMaybe<Scalars['String']['input']>;
-  ingresses?: Array<IngressInput>;
+  ingresses?: InputMaybe<Array<IngressInput>>;
   mounts?: InputMaybe<Array<MountInput>>;
   name: Scalars['String']['input'];
   namespace: Scalars['String']['input'];
@@ -711,11 +680,15 @@ export type Customer = {
   /** @deprecated this field will be removed in the future */
   billingPeriod: Scalars['Int']['output'];
   credit: Price;
+  hasDedicatedIp: Scalars['Boolean']['output'];
   hasPaymentDetails: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   /** @deprecated this field will be removed in the future */
   name: Scalars['String']['output'];
-  /** Cost: complexity = 1000, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 1000, multipliers = [], defaultMultiplier = null
+   */
   priceBreakdown: CustomerPriceBreakdown;
   /** @deprecated this field will be removed in the future */
   recurringPayment: Scalars['Boolean']['output'];
@@ -748,7 +721,6 @@ export type CustomerPriceBreakdownResourcesArgs = {
 
 export type Database = {
   description?: Maybe<Scalars['String']['output']>;
-  extensions: Array<Extension>;
   name: Scalars['String']['output'];
   status: Scalars['String']['output'];
 };
@@ -841,6 +813,7 @@ export type ExternalConnection = {
   ipv4: Scalars['String']['output'];
   ipv6: Scalars['String']['output'];
   ports: Array<ExternalConnectionPort>;
+  type: Scalars['String']['output'];
 };
 
 export type ExternalConnectionInput = {
@@ -935,7 +908,7 @@ export type MessageQueue = {
 };
 
 export type MessageQueueCreateInput = {
-  allowList: Array<AllowListInput>;
+  allowList?: InputMaybe<Array<AllowListInput>>;
   externalConnection?: InputMaybe<ExternalConnectionInput>;
   name: Scalars['String']['input'];
   namespace: Scalars['String']['input'];
@@ -1047,54 +1020,101 @@ export type MountVolumeInput = {
 
 export type Mutation = {
   /**
+   *
    * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
    * @deprecated use `registryConnectionCreate` mutation
    */
   addPrivateRegistry: Scalars['Boolean']['output'];
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   cloudDatabaseClusterCreate: CloudDatabaseCluster;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   cloudDatabaseClusterDatabaseCreate: Database;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   cloudDatabaseClusterDatabaseDelete: Scalars['Boolean']['output'];
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   cloudDatabaseClusterDelete: Scalars['Boolean']['output'];
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   cloudDatabaseClusterModify: CloudDatabaseCluster;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   cloudDatabaseClusterUserCreate: DatabaseUser;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   cloudDatabaseClusterUserDelete: Scalars['Boolean']['output'];
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   cloudDatabaseClusterUserModify: DatabaseUser;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   containerCreate: Container;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   containerDelete: Scalars['Boolean']['output'];
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   containerJobCreate: ContainerJob;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   containerJobDelete: Scalars['Boolean']['output'];
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   containerJobModify: ContainerJob;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   containerModify: Container;
   /**
+   *
    * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
    * @deprecated use `namespaceCreate` mutation
    */
   createNamespace: Scalars['Boolean']['output'];
   /**
+   *
    * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
    * @deprecated use `volumeCreate` mutation
    */
   createVolume?: Maybe<Volume>;
   /**
+   *
    * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
    * @deprecated use `namespaceDelete` mutation
    */
   deleteNamespace: Scalars['Boolean']['output'];
   /**
+   *
    * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
    * @deprecated use `registryConnectionDelete` mutation instead
    */
@@ -1116,27 +1136,60 @@ export type Mutation = {
    * @deprecated use `volumeIncrease` mutation
    */
   increaseVolume: Volume;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   messageQueueCreate: MessageQueue;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   messageQueueDelete: Scalars['Boolean']['output'];
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   messageQueueModify: MessageQueue;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   messageQueueUserModify: MessageQueueUser;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   namespaceCreate: Namespace;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   namespaceDelete: Scalars['Boolean']['output'];
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   registryConnectionCreate: PrivateRegistry;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   registryConnectionDelete: Scalars['Boolean']['output'];
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   volumeCreate: Volume;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   volumeDelete: Scalars['Boolean']['output'];
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   volumeIncrease: Volume;
 };
 
@@ -1286,7 +1339,7 @@ export type MutationVolumeIncreaseArgs = {
 export type Namespace = {
   cloudDatabaseClusters: Array<CloudDatabaseCluster>;
   containerJobs: Array<ContainerJob>;
-  containers?: Maybe<Array<Container>>;
+  containers: Array<Container>;
   createdAt: Scalars['DateTime']['output'];
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
   description: Scalars['String']['output'];
@@ -1411,59 +1464,140 @@ export type Query = {
    * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
    */
   account?: Maybe<Account>;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   auditLogs: Array<Maybe<AuditLog>>;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   cloudDatabase?: Maybe<CloudDatabase>;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   cloudDatabaseCluster: CloudDatabaseCluster;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   cloudDatabaseClusterPlans: Array<Plan>;
-  /** Cost: complexity = 750, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 750, multipliers = [], defaultMultiplier = null
+   */
   cloudDatabaseClusterUserCredentials: DatabaseUser;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   cloudDatabaseClusterVersions: Array<Spec>;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   cloudDatabaseClusters: Array<CloudDatabaseCluster>;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   cloudDatabases: Array<CloudDatabase>;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   container: Container;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   containerJob: ContainerJob;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   customer?: Maybe<Customer>;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   databaseVersions: Array<DatabaseVersion>;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   locations: Array<Location>;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   messageQueue: MessageQueue;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   messageQueuePlans: Array<MessageQueuePlan>;
-  /** Cost: complexity = 750, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 750, multipliers = [], defaultMultiplier = null
+   */
   messageQueueUserCredentials: MessageQueueUser;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   messageQueueVersions: Array<MessageQueueSpec>;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   messageQueues: Array<MessageQueue>;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   namespace: Namespace;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   namespaces: Array<Namespace>;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   nodeType: NodeType;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   nodeTypes: Array<NodeType>;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   pricingPlans: Array<PricingPlan>;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   privateRegistries: Array<PrivateRegistry>;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   resourceSpecifications: Array<ResourceSpecification>;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   volume?: Maybe<Volume>;
-  /** Cost: complexity = 100, multipliers = [], defaultMultiplier = null */
+  /**
+   *
+   * Cost: complexity = 100, multipliers = [], defaultMultiplier = null
+   */
   volumes: Array<Volume>;
 };
 
@@ -1679,6 +1813,7 @@ export type GetFinancialInsightsQueryVariables = Exact<{
 
 export type GetFinancialInsightsQuery = {
   customer?: {
+    hasDedicatedIp: boolean;
     credit: { amount?: number | null; currency?: string | null };
     priceBreakdown: {
       startDate: any;
@@ -1778,6 +1913,7 @@ export type ContainerMountsFragment = { path: string; volume: { name: string; si
 export type ExternalConnectionResultFragment = {
   ipv4: string;
   ipv6: string;
+  type: string;
   ports: Array<{
     allowList: Array<string>;
     externalPort: number;
@@ -1822,9 +1958,7 @@ export type ContainerListQueryVariables = Exact<{
   namespaceName: Scalars['String']['input'];
 }>;
 
-export type ContainerListQuery = {
-  namespace: { containers?: Array<ContainerResultFragment> | null };
-};
+export type ContainerListQuery = { namespace: { containers: Array<ContainerResultFragment> } };
 
 export type ContainerByNameQueryVariables = Exact<{
   namespaceName: Scalars['String']['input'];
@@ -1942,6 +2076,7 @@ export type DeleteCloudDatabaseClusterDatabaseMutation = {
 export type DbExternalConnectionResultFragment = {
   ipv4: string;
   ipv6: string;
+  type: string;
   ports: Array<{
     allowList: Array<string>;
     externalPort: number;
@@ -2096,6 +2231,7 @@ export type DeleteCloudDatabaseClusterUserMutation = { cloudDatabaseClusterUserD
 export type MqExternalConnectionResultFragment = {
   ipv4: string;
   ipv6: string;
+  type: string;
   ports: Array<{
     allowList: Array<string>;
     externalPort: number;
@@ -2207,7 +2343,7 @@ export type NamespaceResultFragment = {
   description: string;
   state: string;
   containerJobs: Array<{ name: string }>;
-  containers?: Array<{ name: string }> | null;
+  containers: Array<{ name: string }>;
   volumes?: Array<{ name: string }> | null;
   cloudDatabaseClusters: Array<{ name: string }>;
   messageQueues: Array<{ name: string }>;
@@ -2327,6 +2463,7 @@ export const ExternalConnectionResultFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'ipv4' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ipv6' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'ports' },
@@ -2531,6 +2668,7 @@ export const ContainerResultFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'ipv4' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ipv6' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'ports' },
@@ -2793,6 +2931,7 @@ export const DbExternalConnectionResultFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'ipv4' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ipv6' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'ports' },
@@ -2985,6 +3124,7 @@ export const CloudDatabaseClusterResultFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'ipv4' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ipv6' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'ports' },
@@ -3141,6 +3281,7 @@ export const MqExternalConnectionResultFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'ipv4' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ipv6' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'ports' },
@@ -3335,6 +3476,7 @@ export const MessageQueueResultFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'ipv4' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ipv6' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'ports' },
@@ -3507,6 +3649,7 @@ export const GetFinancialInsightsDocument = {
                     ],
                   },
                 },
+                { kind: 'Field', name: { kind: 'Name', value: 'hasDedicatedIp' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'priceBreakdown' },
@@ -4166,6 +4309,7 @@ export const ContainerListDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'ipv4' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ipv6' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'ports' },
@@ -4424,6 +4568,7 @@ export const ContainerByNameDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'ipv4' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ipv6' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'ports' },
@@ -4660,6 +4805,7 @@ export const ContainerCreateDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'ipv4' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ipv6' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'ports' },
@@ -4896,6 +5042,7 @@ export const ContainerModifyDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'ipv4' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ipv6' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'ports' },
@@ -5988,6 +6135,7 @@ export const GetCloudDatabaseClustersDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'ipv4' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ipv6' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'ports' },
@@ -6229,6 +6377,7 @@ export const GetCloudDatabaseClusterDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'ipv4' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ipv6' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'ports' },
@@ -6470,6 +6619,7 @@ export const CloudDatabaseClusterCreateDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'ipv4' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ipv6' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'ports' },
@@ -6714,6 +6864,7 @@ export const CloudDatabaseClusterModifyDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'ipv4' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ipv6' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'ports' },
@@ -7430,6 +7581,7 @@ export const MessageQueuesGetDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'ipv4' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ipv6' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'ports' },
@@ -7661,6 +7813,7 @@ export const MessageQueueGetDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'ipv4' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ipv6' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'ports' },
@@ -7892,6 +8045,7 @@ export const MessageQueueCreateDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'ipv4' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ipv6' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'ports' },
@@ -8123,6 +8277,7 @@ export const MessageQueueModifyDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'ipv4' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ipv6' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'type' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'ports' },
