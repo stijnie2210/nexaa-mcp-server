@@ -39,7 +39,7 @@ async function buildNexaaClient(): Promise<NexaaClient> {
 }
 
 function buildServer(client: NexaaClient): McpServer {
-  const server = new McpServer({ name: 'nexaa-mcp', version: '0.1.0' });
+  const server = new McpServer({ name: 'nexaa-mcp', version: '0.2.0' });
   const { gql, authFetch } = client;
 
   registerNamespaceTools(server, gql);

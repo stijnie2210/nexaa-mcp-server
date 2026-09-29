@@ -17,6 +17,7 @@ nexaa-mcp connects to the Nexaa GraphQL API and provides tools for managing:
 - **Databases** — create, delete
 - **Database Users** — list, create, get, modify, delete, get credentials
 - **Message Queues** — list, create, get, modify, delete, get credentials, list plans/versions
+- **Billing** — account credit, dedicated IP status, and cost breakdown per namespace and resource
 
 ## Configuration
 
@@ -176,10 +177,20 @@ The project uses a two-layer structure:
 - `src/tools/{resource}.ts` — MCP tool definitions with Zod input schemas
 - `src/queries/{resource}.graphql` — GraphQL queries and mutations
 
+`schema.graphql` is a copy of the Nexaa API schema. To update it from the live API, run:
+
+```bash
+npm run schema:fetch
+```
+
+This uses the `NEXAA_USERNAME` and `NEXAA_PASSWORD` from your `.env` to authenticate, and falls back to the anonymous schema when they are not set.
+
 Types are generated from the schema and queries by running:
 
 ```bash
 npm run codegen
 ```
+
+Run codegen after every schema fetch. It fails when a query uses a field the API has removed. Input fields in the Zod schemas in `src/tools` are not type-checked against the schema, so check those by hand.
 
 To add a new resource, create `src/queries/{resource}.graphql`, run codegen, create `src/tools/{resource}.ts`, and register the tools in `src/index.ts`.
