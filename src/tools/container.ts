@@ -205,6 +205,15 @@ export function registerContainerTools(
       },
     },
     async (input) => {
+      // The API treats a missing `resources` as a change, which STARTER containers reject.
+      // Send the current value when none is given so other fields can still be modified.
+      if (input.resources === undefined) {
+        const current = await client.request<ContainerByNameQuery>(ContainerByNameDocument, {
+          namespaceName: input.namespace,
+          containerName: input.name,
+        });
+        input = { ...input, resources: current.container.resources };
+      }
       const data = await client.request<ContainerModifyMutation>(ContainerModifyDocument, {
         input,
       });
